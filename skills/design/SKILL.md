@@ -5,6 +5,14 @@ description: 设定图阶段。调度美术指导 agent 生成角色三视图和
 
 # /design 视觉设定（含门禁②）
 
+## 运行时适配（跨 Agent 兼容）
+
+- **支持 subagent 的运行时**（Claude Code / Hermes Agent 等）：按下文"调度 xxx agent"正常派发子代理执行
+- **不支持 subagent 的运行时**（OpenClaw 等，以插件 bundle 方式安装）：正文提到"调度 X agent"时，
+  改为读取插件根 `agents/<X>.md`（本技能目录上两级），以其为工作规范在当前上下文直接执行，效果等同
+- **用户确认处**：有 AskUserQuestion 工具就用；没有则直接在对话中提问并等待用户回复，门禁语义不变
+
+
 ## 前置检查
 
 - status.storyboard 必须是 done（设定清单来自分镜表）；分镜没做完先走 /storyboard

@@ -5,6 +5,14 @@ description: 剧本创作阶段。调度编剧 agent 产出大纲、人物小传
 
 # /script 剧本创作（含门禁①）
 
+## 运行时适配（跨 Agent 兼容）
+
+- **支持 subagent 的运行时**（Claude Code / Hermes Agent 等）：按下文"调度 xxx agent"正常派发子代理执行
+- **不支持 subagent 的运行时**（OpenClaw 等，以插件 bundle 方式安装）：正文提到"调度 X agent"时，
+  改为读取插件根 `agents/<X>.md`（本技能目录上两级），以其为工作规范在当前上下文直接执行，效果等同
+- **用户确认处**：有 AskUserQuestion 工具就用；没有则直接在对话中提问并等待用户回复，门禁语义不变
+
+
 ## 前置检查
 
 - 确定目标项目（projects/ 下唯一项目则默认它；多个则问）；project.json 必须存在，否则先走 /new-drama

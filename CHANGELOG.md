@@ -1,5 +1,16 @@
 # 更新日志
 
+## [2.3.0] - 2026-07-13
+
+### 新增
+- **跨运行时兼容**：同一份插件可安装到多种 Agent
+  - 11 个 SKILL.md 统一加入"运行时适配"块：不支持 subagent 的运行时自动降级为
+    "读取插件内 agents/*.md 作为工作规范在当前上下文执行"；无 AskUserQuestion 时门禁降级为对话内确认，语义不变
+  - **OpenClaw**：经其 Claude 插件 bundle 机制直接安装
+    （`openclaw plugins install film-studio --marketplace <本仓库>`），skills 原生加载 + agents 降级执行
+  - **Hermes Agent**（Claude Code / Agent SDK 内核）：与 Claude Code 同构，`claude plugin` 命令直接装
+  - 仓库开发规则新增：新技能必须保留"运行时适配"块
+
 ## [2.2.0] - 2026-07-13
 
 ### 新增

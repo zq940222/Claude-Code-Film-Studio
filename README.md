@@ -35,6 +35,21 @@ claude plugin install film-studio@film-studio
 
 安装后在**任意工作目录**运行 `/new-drama`：首次会自动初始化工作区（复制创作规范 CLAUDE.md 和工具脚本），然后建项开拍。命令带插件命名空间时写作 `/film-studio:new-drama`，无重名时直接 `/new-drama` 即可。
 
+### 在其他 Agent 中安装（跨运行时兼容）
+
+本插件的 11 个技能内置了"运行时适配"降级逻辑，同一份插件可装进多种 Agent：
+
+- **OpenClaw**（支持 Claude 插件 bundle）：
+  ```bash
+  openclaw plugins install film-studio --marketplace https://github.com/zq940222/Claude-Code-Film-Studio
+  openclaw gateway restart
+  ```
+  技能原生加载；OpenClaw 不执行 subagent，技能会自动降级为"读取插件内 agents/*.md 当工作规范直接执行"，门禁确认改为对话内询问，效果等同
+- **Hermes Agent**（以 Claude Code / Claude Agent SDK 为执行内核）：与 Claude Code 完全同构，直接用上面的 `claude plugin` 命令安装即可
+- 其他支持 [Agent Skills 标准](https://docs.openclaw.ai/tools/skills)的运行时：把仓库整体复制进其技能目录（如 `~/.openclaw/skills/`）也可加载
+
+外部依赖（dreamina CLI、ffmpeg、agent-browser、pyJianYingDraft）与运行时无关，装好即可在任何 Agent 中使用。
+
 ## 环境要求
 
 | 依赖 | 说明 | 验证方式 |

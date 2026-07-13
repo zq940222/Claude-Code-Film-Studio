@@ -5,6 +5,14 @@ description: 审片阶段。调度审片人 agent 对生成的镜头抽帧质检
 
 # /review 审片质检
 
+## 运行时适配（跨 Agent 兼容）
+
+- **支持 subagent 的运行时**（Claude Code / Hermes Agent 等）：按下文"调度 xxx agent"正常派发子代理执行
+- **不支持 subagent 的运行时**（OpenClaw 等，以插件 bundle 方式安装）：正文提到"调度 X agent"时，
+  改为读取插件根 `agents/<X>.md`（本技能目录上两级），以其为工作规范在当前上下文直接执行，效果等同
+- **用户确认处**：有 AskUserQuestion 工具就用；没有则直接在对话中提问并等待用户回复，门禁语义不变
+
+
 ## 前置检查
 
 - shotlist.json 存在且至少有 status=success 的镜头；否则先走 /shoot

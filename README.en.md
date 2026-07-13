@@ -37,6 +37,21 @@ Restart your session after installing. The default scope is user-level (availabl
 
 After installing, run `/new-drama` in **any working directory**: the first run bootstraps the workspace (copies the studio conventions CLAUDE.md and helper scripts), then creates your project — choosing the format (short drama / short film / anime). With the plugin namespace the command is `/film-studio:new-drama`; when there is no name clash, plain `/new-drama` works.
 
+### Installing into other agents (cross-runtime)
+
+All 11 skills carry a built-in "runtime adaptation" fallback, so the same plugin installs into multiple agents:
+
+- **OpenClaw** (supports Claude plugin bundles):
+  ```bash
+  openclaw plugins install film-studio --marketplace https://github.com/zq940222/Claude-Code-Film-Studio
+  openclaw gateway restart
+  ```
+  Skills load natively; OpenClaw does not execute subagents, so skills automatically fall back to reading the bundled `agents/*.md` as in-context work specs, and gate confirmations become chat questions — same semantics
+- **Hermes Agent** (Claude Code / Claude Agent SDK as its execution core): identical to Claude Code — use the `claude plugin` commands above
+- Any runtime supporting the [Agent Skills standard](https://docs.openclaw.ai/tools/skills): copying the repo into its skills directory (e.g. `~/.openclaw/skills/`) also works
+
+External dependencies (dreamina CLI, ffmpeg, agent-browser, pyJianYingDraft) are runtime-agnostic.
+
 ## Requirements
 
 | Dependency | Purpose | How to verify |
