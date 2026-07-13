@@ -23,6 +23,14 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 - `03-design/style-bible.md`：调色滤镜倾向
 - `project.json`：画幅（9:16 → 1080x1920，16:9 → 1920x1080）与创作形态
 
+## 剪辑增强选项（两条路径通用，读 project.json 的 `editing` 块，默认全关）
+
+- **集间交叉衔接** `episode_overlap.enabled=true` 且非第 1 集：时间线最前面插入上一集最后镜头的结尾
+  `seconds`（默认 4）秒片段（若 /edit 已生成 `sh00-recap.mp4` 直接用；没有就现切）；字幕时间轴相应整体后移
+- **片头/片尾** `intro_outro.enabled=true`：时间线首尾加入 `projects/<片名>/assets/intro.mp4`、`outro.mp4`
+  （不存在时按 editor 的规格先生成：片名卡/引导卡各 2-3 秒，贴 style-bible 风格）；字幕时间轴同样后移片头时长
+- 选项关闭（默认）时完全跳过，不要询问用户
+
 ## 通用第一步：生成字幕时间轴（SRT）
 
 - 按 shotlist.json 各镜头时长累计出每镜头的起止时间

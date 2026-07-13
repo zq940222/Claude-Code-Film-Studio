@@ -153,6 +153,7 @@ projects/<title>/
 - ✅ Fine-cut project (`/finalcut`): auto-assembled transitions, BGM placement, dialogue subtitle track, filter/grading notes —
   the Resolve path can **auto-render the final film after you approve the timeline**; the JianYing path opens as a draft for touch-ups (transitions, subtitle line breaks, BGM volume) and **you export it in JianYing**
 - ✅ Publishing materials and semi-automatic publishing (`/publish`): candidate titles, hashtags, cover image, upload and form filling — **publishing requires your confirmation**
+- ✅ Optional editing enhancements (**both off by default**; pick at project creation or ask the producer anytime): episode-to-episode overlap (each episode reopens with the last few seconds of the previous one) and intro/outro cards (series-reusable title/CTA cards)
 - ❌ JianYing VIP assets and platform logins → always done by you personally
 
 ### The Four Gates

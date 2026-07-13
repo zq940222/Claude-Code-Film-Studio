@@ -2,7 +2,7 @@
   "name": "film-studio",
   "displayName": "影视工作台 Film Studio",
   "description": "AI 影视创作全流程工作台（短剧/电影短片/动漫番剧）：11 个影视专业 agent + 分阶段命令，从一句话创意到剧本、分镜、设定图、即梦视频生成、Suno 配乐、剪映精剪、抖音发布，内置四道防误操作门禁",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "author": {
     "name": "zq940222",
     "url": "https://github.com/zq940222"

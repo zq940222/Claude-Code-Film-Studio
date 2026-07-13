@@ -16,6 +16,15 @@
 
 老项目 project.json 无 medium 字段时默认 `short-drama`。
 
+## 剪辑增强选项（project.json 的 editing 块，默认全关）
+
+- `episode_overlap`（集间交叉衔接）：开启后每集开头重放上一集最后镜头的结尾几秒（默认 4s，
+  存为 `sh00-recap.mp4`），方便观众衔接；第 1 集不适用
+- `intro_outro`（片头/片尾）：开启后每集首尾加全剧复用的片名卡/引导卡（`projects/<片名>/assets/intro.mp4`、`outro.mp4`，
+  首次启用时由剪辑师按 style-bible 风格生成）
+- 两项在 `/new-drama` 建项时询问（默认不选）；中途想开关，直接让制片人改 project.json 即可；
+  剪辑师（粗剪）与精剪师（精剪工程）都会读取此配置，开启片头时字幕时间轴相应偏移
+
 ## 创作流水线
 
 ```
@@ -66,7 +75,7 @@
 
 ```
 projects/<片名>/
-├── project.json           # 项目档案：创作形态(medium)、画幅、时长、集数、各阶段状态
+├── project.json           # 项目档案：创作形态(medium)、画幅、时长、集数、剪辑增强(editing)、各阶段状态
 ├── 01-script/             # outline.md, characters.md, ep01.md ...
 ├── 02-storyboard/         # ep01-storyboard.md ...
 ├── 03-design/             # characters/<角色>-*.png, scenes/<场景>-*.png, style-bible.md

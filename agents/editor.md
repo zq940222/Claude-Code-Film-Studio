@@ -23,8 +23,17 @@ python tools/concat.py --input-dir "projects/<剧名>/04-footage/ep01" --output 
 
    镜头顺序按文件名 sh01、sh02… 自然排序；若需自定义顺序或剔除镜头，用 `--files sh02.mp4 sh01.mp4` 传入明确清单
 
-4. **成品校验**：`ffprobe` 检查总时长 ≈ 各镜头之和、含音频流、分辨率/编码达标；抽首中尾 3 帧确认画面
-5. **精剪交付包**：在 `05-final/` 写 `delivery-ep{NN}.md`，列出交付清单供剪映/PR 使用：
+4. **剪辑增强选项**（读 project.json 的 `editing` 块，两项默认关闭，关闭时完全跳过本步）：
+   - **集间交叉衔接** `episode_overlap.enabled=true` 且非第 1 集：从上一集**最后一个镜头**截取结尾
+     `seconds`（默认 4）秒，存为本集 `04-footage/ep{NN}/sh00-recap.mp4`（sh00 排序自然置顶，
+     concat 默认 glob 即可带上）——观众看到上集结尾片段，衔接自然：
+     `ffmpeg -sseof -4 -i 上集最后镜头.mp4 -c:v libx264 -pix_fmt yuv420p -c:a aac sh00-recap.mp4`
+   - **片头/片尾** `intro_outro.enabled=true`：首次启用时生成全剧复用的
+     `projects/<片名>/assets/intro.mp4`（片名卡 2-3 秒：ffmpeg drawtext 片名，风格贴 style-bible 色调）和
+     `assets/outro.mp4`（引导卡 2-3 秒：关注追更/下集预告文案）；分辨率同画幅、静音轨补齐规格。
+     拼接时用 `--files` 显式清单（**支持绝对路径**）：`intro.mp4绝对路径 sh00-recap... sh01... outro.mp4绝对路径`
+5. **成品校验**：`ffprobe` 检查总时长 ≈ 各镜头之和（+增强片段）、含音频流、分辨率/编码达标；抽首中尾 3 帧确认画面
+6. **精剪交付包**：在 `05-final/` 写 `delivery-ep{NN}.md`，列出交付清单供剪映/PR 使用：
    - 粗剪预览：`<剧名>-ep{NN}-粗剪.mp4`（看节奏和整体效果）
    - 原始镜头：`04-footage/ep{NN}/sh*.mp4`（精剪用原素材，未二压）
    - BGM：`04-footage/ep{NN}/bgm/`（Suno 生成，见 bgm-notes.md 对位说明）

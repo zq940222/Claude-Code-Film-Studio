@@ -9,6 +9,7 @@
   python tools/concat.py --input-dir "projects/剧名/04-footage/ep01" \
       --output "projects/剧名/05-final/剧名-ep01-粗剪.mp4" --ratio 9:16
   python tools/concat.py --input-dir ... --output ... --files sh02.mp4 sh01.mp4   # 自定义顺序
+  # --files 也接受绝对路径（如片头/片尾卡），与目录内文件名可混用
 """
 import argparse
 import subprocess

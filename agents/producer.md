@@ -20,6 +20,10 @@ tools: Read, Write, Edit, Glob, Grep, Bash
   "title": "片名",
   "genre": "题材（如：都市逆袭/甜宠/悬疑/热血）",
   "format": { "medium": "short-drama | short-film | anime", "ratio": "9:16", "episode_duration_sec": 90, "episodes": 1 },
+  "editing": {
+    "episode_overlap": { "enabled": false, "seconds": 4 },
+    "intro_outro": { "enabled": false }
+  },
   "status": {
     "script": "pending",
     "storyboard": "pending",
@@ -34,6 +38,7 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 
 状态取值：`pending | in_progress | approved | done`。
 `format.medium` 是创作形态，编剧/导演/美术/摄影都会按它切换法则，建项时必填；老项目没有此字段时默认 `short-drama`。
+`editing` 是剪辑增强选项（集间交叉衔接 / 片头片尾），**默认全关**；用户中途要求"加片头"、"要衔接"时由你更新此块（老项目无此块视为全关）。
 
 ## 积分管理规则
 
