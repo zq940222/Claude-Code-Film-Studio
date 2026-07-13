@@ -1,5 +1,7 @@
 # 短剧工作台（Short Drama Studio）
 
+![version](https://img.shields.io/badge/version-1.2.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%2B%20Windows-lightgrey)
+
 在 Claude Code 中完成短剧创作全流程的 AI 工作台：从一句话创意到平台发布——剧本 → 分镜 → 角色/场景设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 抖音发布。
 
 由 11 个影视专业 agent 分工协作，通过分阶段 slash 命令推进，内置四道人工确认门禁（防止积分误消耗和误发布）。
@@ -133,6 +135,8 @@ projects/<剧名>/
 
 ```
 CLAUDE.md                  # 工作台总规范（Claude Code 自动加载）
+VERSION                    # 当前版本号
+CHANGELOG.md               # 更新日志（版本演进记录）
 .claude/agents/            # 11 个专业 agent 定义
 .claude/skills/            # 11 个阶段 slash 命令
 tools/concat.ps1           # ffmpeg 统一转码 + 拼接脚本
@@ -140,3 +144,9 @@ requirements.txt           # Python 依赖（pyJianYingDraft）
 docs/superpowers/specs/    # 设计文档（含修订记录）
 projects/                  # 你的短剧项目（音视频产物不入 git）
 ```
+
+## 版本管理
+
+工作台遵循[语义化版本](https://semver.org/lang/zh-CN/)（详见 [CHANGELOG.md](CHANGELOG.md)）：
+主版本号 = 不兼容的流程/目录变更；次版本号 = 新增 agent/命令/能力；修订号 = 修复与文档。
+每个版本都有对应的 git tag（`v1.0.0`、`v1.1.0`…），需要回退或对照旧版本时 `git checkout v<版本>` 即可。

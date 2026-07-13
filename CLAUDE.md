@@ -76,6 +76,12 @@ projects/<剧名>/
 - `/finalcut` 精剪：自动生成剪映草稿（转场、BGM 对位、台词字幕、滤镜），**最终微调和导出由用户在剪映中完成**
 - `/publish` 发布：文案 + 封面 + 半自动上传，发布点击前必须用户确认
 
+## 工作台版本管理
+
+- 当前版本见 `VERSION`，变更历史见 `CHANGELOG.md`（语义化版本：主=不兼容变更 / 次=新增能力 / 修订=修复文档）
+- **修改工作台本身**（agents/skills/tools/CLAUDE.md）时必须：更新 `VERSION` → 在 `CHANGELOG.md` 记录 → 提交后 `git tag v<版本>` 并推送 tag
+- 修改短剧项目内容（projects/ 下的创作产物）不涉及版本号
+
 ## 环境
 
 - `dreamina` CLI 已登录（OAuth 设备流），`dreamina <子命令> -h` 查参数
