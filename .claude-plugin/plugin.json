@@ -1,0 +1,23 @@
+{
+  "name": "short-drama-studio",
+  "displayName": "短剧工作台 Short Drama Studio",
+  "description": "AI 短剧创作全流程工作台：11 个影视专业 agent + 分阶段命令，从一句话创意到剧本、分镜、设定图、即梦视频生成、Suno 配乐、剪映精剪、抖音发布，内置四道防误操作门禁",
+  "version": "1.3.0",
+  "author": {
+    "name": "zq940222",
+    "url": "https://github.com/zq940222"
+  },
+  "homepage": "https://github.com/zq940222/Claude-Code-Short-Drama-Studios",
+  "repository": "https://github.com/zq940222/Claude-Code-Short-Drama-Studios",
+  "keywords": [
+    "short-drama",
+    "video-generation",
+    "seedance",
+    "dreamina",
+    "jianying",
+    "capcut",
+    "suno",
+    "douyin",
+    "aigc"
+  ]
+}

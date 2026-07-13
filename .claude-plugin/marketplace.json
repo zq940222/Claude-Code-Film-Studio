@@ -1,0 +1,19 @@
+{
+  "name": "short-drama-studio",
+  "owner": {
+    "name": "zq940222"
+  },
+  "metadata": {
+    "description": "短剧工作台插件源",
+    "version": "1.3.0"
+  },
+  "plugins": [
+    {
+      "name": "short-drama-studio",
+      "source": "./",
+      "description": "AI 短剧创作全流程工作台：剧本 → 分镜 → 设定图 → 即梦视频生成 → Suno 配乐 → 剪映精剪 → 抖音发布",
+      "category": "productivity",
+      "tags": ["short-drama", "video", "aigc", "seedance", "jianying"]
+    }
+  ]
+}

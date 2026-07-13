@@ -1,10 +1,34 @@
 # 短剧工作台（Short Drama Studio）
 
-![version](https://img.shields.io/badge/version-1.2.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%2B%20Windows-lightgrey)
+![version](https://img.shields.io/badge/version-1.3.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%2B%20Windows-lightgrey)
 
 在 Claude Code 中完成短剧创作全流程的 AI 工作台：从一句话创意到平台发布——剧本 → 分镜 → 角色/场景设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 抖音发布。
 
 由 11 个影视专业 agent 分工协作，通过分阶段 slash 命令推进，内置四道人工确认门禁（防止积分误消耗和误发布）。
+
+## 安装（Claude Code 插件）
+
+本仓库是标准 Claude Code 插件（自托管 marketplace），命令行两步安装：
+
+```bash
+claude plugin marketplace add zq940222/Claude-Code-Short-Drama-Studios
+claude plugin install short-drama-studio@short-drama-studio
+```
+
+或在 Claude Code 会话内：
+
+```
+/plugin marketplace add zq940222/Claude-Code-Short-Drama-Studios
+/plugin install short-drama-studio@short-drama-studio
+```
+
+安装后重启会话生效。默认装到用户级（所有目录可用）；只想在某个项目用加 `--scope project`。
+
+- **更新**：`claude plugin update short-drama-studio`（新版本发布后）
+- **卸载**：`claude plugin uninstall short-drama-studio`
+- **锁定版本**：`claude plugin marketplace add zq940222/Claude-Code-Short-Drama-Studios@v1.3.0`
+
+安装后在**任意工作目录**运行 `/new-drama`：首次会自动初始化工作区（复制创作规范 CLAUDE.md 和拼接脚本），然后建项开拍。命令带插件命名空间时写作 `/short-drama-studio:new-drama`，无重名时直接 `/new-drama` 即可。
 
 ## 环境要求
 
@@ -24,8 +48,8 @@
 ## 快速开始
 
 ```
-1. 在本目录启动 Claude Code（agents 和 skills 在会话启动时自动加载）
-2. /new-drama        # 建项：选题材、画幅（9:16 / 16:9）、每集时长、集数
+1. 安装插件后，在任意工作目录启动 Claude Code
+2. /new-drama        # 首次自动初始化工作区，然后建项：选题材、画幅、每集时长、集数
 3. /script           # 剧本创作，迭代到你满意 →【门禁① 定稿确认】
 4. /storyboard       # 剧本拆分镜表（镜号/景别/运镜/时长/画面/台词）
 5. /design           # 角色三视图 + 场景设定图 →【门禁② 定稿确认】
@@ -134,19 +158,19 @@ projects/<剧名>/
 ## 仓库结构
 
 ```
-CLAUDE.md                  # 工作台总规范（Claude Code 自动加载）
-VERSION                    # 当前版本号
-CHANGELOG.md               # 更新日志（版本演进记录）
-.claude/agents/            # 11 个专业 agent 定义
-.claude/skills/            # 11 个阶段 slash 命令
-tools/concat.ps1           # ffmpeg 统一转码 + 拼接脚本
+.claude-plugin/            # 插件 manifest + 自托管 marketplace
+agents/                    # 11 个专业 agent 定义
+skills/                    # 11 个阶段 slash 命令
+templates/                 # 工作区规范模板（/new-drama 建项时复制为工作区 CLAUDE.md）
+tools/concat.ps1           # ffmpeg 统一转码 + 拼接脚本（建项时复制进工作区）
+VERSION / CHANGELOG.md     # 版本号与更新日志
 requirements.txt           # Python 依赖（pyJianYingDraft）
 docs/superpowers/specs/    # 设计文档（含修订记录）
-projects/                  # 你的短剧项目（音视频产物不入 git）
 ```
 
 ## 版本管理
 
 工作台遵循[语义化版本](https://semver.org/lang/zh-CN/)（详见 [CHANGELOG.md](CHANGELOG.md)）：
 主版本号 = 不兼容的流程/目录变更；次版本号 = 新增 agent/命令/能力；修订号 = 修复与文档。
-每个版本都有对应的 git tag（`v1.0.0`、`v1.1.0`…），需要回退或对照旧版本时 `git checkout v<版本>` 即可。
+每个版本都有对应的 git tag（`v1.0.0`、`v1.1.0`…）。插件用户升级：`claude plugin update short-drama-studio`；
+需要锁定旧版本时用 `claude plugin marketplace add <repo>@v<版本>`。

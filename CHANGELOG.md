@@ -8,6 +8,20 @@
 
 每次升级：更新 `VERSION` → 在此记录变更 → `git tag v<版本> && git push --tags`。
 
+## [1.3.0] - 2026-07-13
+
+### 新增
+- **插件化**：仓库改造为标准 Claude Code 插件 + 自托管 marketplace（`.claude-plugin/plugin.json` + `marketplace.json`），
+  支持命令行安装：`claude plugin marketplace add zq940222/Claude-Code-Short-Drama-Studios` →
+  `claude plugin install short-drama-studio@short-drama-studio`
+- `/new-drama` 新增工作区初始化：首次建项自动把创作规范（`templates/workspace-CLAUDE.md`）和
+  `tools/concat.ps1` 复制进用户工作目录（插件的 CLAUDE.md 不会被自动加载，以此机制替代）
+
+### 变更
+- 目录结构：`.claude/agents/` → `agents/`，`.claude/skills/` → `skills/`（插件标准布局）
+- 仓库根 CLAUDE.md 改为插件开发说明；工作台创作规范移至 `templates/workspace-CLAUDE.md`
+- 发布流程：VERSION、plugin.json、marketplace.json 三处版本号保持一致
+
 ## [1.2.0] - 2026-07-13
 
 ### 新增
