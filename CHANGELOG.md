@@ -1,5 +1,17 @@
 # 更新日志
 
+## [2.9.0] - 2026-07-16
+
+### 优化（风格库对照小云雀扩充 + 真人/2D/3D 分类）
+- **预设从 10 个扩到 ~19 个，按 真人 / 2D / 3D 三类组织**（对标小云雀风格库的分类 tab）
+- 新增预设（覆盖小云雀可见风格）：真人类 **日式生活自然 / 90年代写实电影 / 复古叙事电影 / 美式复古好莱坞 /
+  90年代中国农村电影 / 武侠江湖写实**；2D 类 **90年代复古动漫 / 国漫国风**；3D 类 **3D 写实 CG**
+- 命名对齐小云雀更具体的影调：`realistic-urban 写实都市` → `cn-urban-realist 国产都市写实`、
+  `korean-clean 韩剧清冷` → `korean-soft 韩剧都市柔光`、`cyberpunk` → `cyberpunk-neon 霓虹赛博电影`、
+  `ancient-drama` → `ancient-ornate 古装华丽`、`painterly` → `painterly-2d`；同步更新 producer/new-drama 引用
+- `/new-drama` 选风格按类别给候选、"更多"按类别列全库；`workspace-CLAUDE.md` 不再硬枚举清单（以 style-presets.md 为准，防漂移）
+- 机制不变：仍是 style-bible 里 STYLE LOCK 逐字锁定；扩库只需在对应类别加一段（id+名+类别+适用形态+STYLE LOCK+调色意图），无需改任何 agent
+
 ## [2.8.0] - 2026-07-16
 
 ### 新增（风格化提示词——一次选定整体画风、全剧锁定，对标小云雀）
