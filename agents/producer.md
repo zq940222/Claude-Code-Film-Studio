@@ -19,7 +19,8 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 {
   "title": "片名",
   "genre": "题材（如：都市逆袭/甜宠/悬疑/热血）",
-  "format": { "medium": "short-drama | short-film | anime", "ratio": "9:16", "episode_duration_sec": 90, "episodes": 1 },
+  "format": { "medium": "short-drama | short-film | anime", "ratio": "9:16", "episode_duration_sec": 90, "episodes": 1,
+              "style": { "preset": "realistic-urban", "name": "写实都市" } },
   "editing": {
     "episode_overlap": { "enabled": false, "seconds": 4 },
     "intro_outro": { "enabled": false }
@@ -38,6 +39,7 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 
 状态取值：`pending | in_progress | approved | done`。
 `format.medium` 是创作形态，编剧/导演/美术/摄影都会按它切换法则，建项时必填；老项目没有此字段时默认 `short-drama`。
+`format.style` 是选定的整体画风预设（写实都市/电影质感/2D手绘/3D卡通…，见插件 `templates/style-presets.md`），建项时选定并把其 STYLE LOCK 写进 style-bible.md 保证全剧一致；**老项目无此字段时按 medium 取默认**（short-drama→写实都市、short-film→电影质感、anime→2D手绘）。用户想换风格由你改此字段，但**已出设定图/视频后换风格＝那些产物作废需重做**，务必提醒。
 `editing` 是剪辑增强选项（集间交叉衔接 / 片头片尾），**默认全关**；用户中途要求"加片头"、"要衔接"时由你更新此块（老项目无此块视为全关）。
 
 ## 积分管理规则

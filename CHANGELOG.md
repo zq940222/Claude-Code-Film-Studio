@@ -1,5 +1,22 @@
 # 更新日志
 
+## [2.8.0] - 2026-07-16
+
+### 新增（风格化提示词——一次选定整体画风、全剧锁定，对标小云雀）
+像小云雀（剪映/字节的 Seedance 2.0 短剧 Agent，支持 2D手绘/3D卡通/仿真真人）那样，建项时先定"整体视频风格"，之后所有镜头、所有集保持一致。
+- **新增风格预设库 `templates/style-presets.md`**：~10 个命名预设——写实都市 / 电影质感 / 韩剧清冷 / 港风复古 /
+  国风水墨 / 古装华丽 / 赛博朋克 / 2D手绘 / 3D卡通 / 油画厚涂 + 自定义；每个含一段 **STYLE LOCK 英文关键词块**、
+  适用形态、调色意图。（预设是关键词+设定图画风实现，Seedance 无风格模型开关）
+- **风格锁机制（单一真源 = style-bible.md）**：`/new-drama` 建项时按选定 `format.style` 把该预设的 STYLE LOCK 块
+  **逐字**写进 `03-design/style-bible.md`；此后 **agent 只读 style-bible.md**（不读插件预设库，遵守"agent 不知插件根"）：
+  - `art-director` 保留 STYLE LOCK 逐字、在其下补锚点，**每条出图提示词以 STYLE LOCK 开头**（设定图自带选定画风）
+  - `cinematographer` **每条视频提示词逐字前置 STYLE LOCK**（`text2video` 空镜无图锚点时它是唯一风格载体）
+  - `finalcut` 按预设"调色意图"选一个 `jianying_assets.py` 校验过的滤镜，调色也统一到选定风格
+- **动漫的"锁定二次元流派防漂移"并入本通用机制**（即 `anime-2d` 预设）——单一机制，不再是动漫专属的平行规则
+- **选风格时机**：`/new-drama` 选定（`project.json.format.style`），`/design` 出图前仍可改；出了设定图/视频再改＝作废重做（同画幅约束）。老项目无 `format.style` 按 medium 取默认
+- 诚实边界：含角色镜头靠 @引用设定图承载主要风格、STYLE LOCK 加固；空镜靠 STYLE LOCK。整体"强一致"，非逐帧像素级
+- 影响：`new-drama`/`design` 技能、`producer`（schema 加 `format.style`）、`art-director`、`cinematographer`、`finalcut`、工作区文档
+
 ## [2.7.0] - 2026-07-16
 
 ### 新增（短剧叙事优化——靠台词和内心独白讲故事，扬 AI 之长）

@@ -16,6 +16,14 @@
 
 老项目 project.json 无 medium 字段时默认 `short-drama`。
 
+## 整体视频风格（一次选定、全剧锁定）
+
+建项时在 medium 之上再选一个**具体画风预设**（`project.json` 的 `format.style`），像小云雀那样定好整体风格后所有镜头/所有集保持一致。预设含写实都市 / 电影质感 / 韩剧清冷 / 港风复古 / 国风水墨 / 古装华丽 / 赛博朋克 / 2D手绘 / 3D卡通 / 油画厚涂 / 自定义（完整库见插件 `templates/style-presets.md`）。
+
+- **机制**：选定预设的 **STYLE LOCK 英文关键词块**写进 `03-design/style-bible.md`（单一真源）；美术每条出图提示词、摄影每条视频提示词都**逐字前置** STYLE LOCK，精剪调色也按其"调色意图"选校验过的滤镜——三处合力锁风格。动漫的"锁定二次元流派"就是本机制的 `anime-2d` 预设
+- **一致性边界**：含角色镜头靠 @引用设定图承载主要风格、STYLE LOCK 加固；`text2video` 空镜无图锚点，STYLE LOCK 是唯一载体（漂移风险最大，务必原样前置）。是"强一致"非逐帧像素级
+- **改风格时机**：/design 出图前可自由改；出了设定图/视频再改＝那些产物作废重做（同画幅约束）。老项目无 `format.style` 按 medium 取默认
+
 ## 剪辑增强选项（project.json 的 editing 块，默认全关）
 
 - `episode_overlap`（集间交叉衔接）：开启后每集开头重放上一集最后镜头的结尾几秒（默认 4s，
@@ -47,7 +55,7 @@
 | producer | 制片人 | 建项、进度跟踪、积分预算、门禁把关 |
 | screenwriter | 编剧 | 大纲、人物小传、分集剧本、台词（短剧靠台词直给+内心独白叙事；逐句标 `【对白】/【独白】`，动漫另用 `【旁白】`） |
 | director | 导演 | 分镜表：景别、运镜、时长、节奏；台词/音效列区分对白(同期)与内心独白(后期配音) |
-| art-director | 美术指导 | 角色/场景设定图（Gemini 网页端），视觉一致性 |
+| art-director | 美术指导 | 角色/场景设定图 + 首尾帧/多帧关键帧（Gemini 网页端）；维护 style-bible 风格锁，视觉一致性 |
 | cinematographer | 摄影指导 | 分镜 → Seedance 2.0 提示词 → shotlist.json |
 | video-generator | 视频生成师 | 按 shotlist 调 dreamina CLI 生成、轮询、下载 |
 | composer | 配乐师 | Suno 网页端生成 BGM + 对位说明 |
@@ -82,10 +90,10 @@
 
 ```
 projects/<片名>/
-├── project.json           # 项目档案：创作形态(medium)、画幅、时长、集数、剪辑增强(editing)、各阶段状态
+├── project.json           # 项目档案：创作形态(medium)、画风预设(style)、画幅、时长、集数、剪辑增强(editing)、各阶段状态
 ├── 01-script/             # outline.md, characters.md, ep01.md ...
 ├── 02-storyboard/         # ep01-storyboard.md ...
-├── 03-design/             # characters/<角色>-*.png, scenes/<场景>-*.png, keyframes/ep{NN}-sh{NN}-*.png（首尾帧/多帧关键帧）, style-bible.md
+├── 03-design/             # characters/<角色>-*.png, scenes/<场景>-*.png, keyframes/ep{NN}-sh{NN}-*.png（首尾帧/多帧关键帧）, style-bible.md（含风格锁 STYLE LOCK，全剧风格单一真源）
 ├── 04-footage/ep01/       # shotlist.json + sh01.mp4 ... + ep01.srt + bgm/（Suno BGM + 对位说明）
 ├── 05-final/              # <剧名>-ep01-粗剪.mp4 + delivery-ep01.md + finalcut-ep01.md（精剪说明）
 └── 06-publish/ep01/       # copy.md（发布文案）+ cover.png（封面）+ publish-log.md（发布记录）

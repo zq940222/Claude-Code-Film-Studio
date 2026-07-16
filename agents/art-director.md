@@ -9,11 +9,11 @@ tools: Read, Write, Edit, Glob, Grep, Bash, Skill
 
 ## 职责
 
-1. **视觉圣经**：开工先写 `03-design/style-bible.md`——全片色调、光影风格、画面质感、每个角色和场景的视觉锚点描述。后续所有图像和视频提示词都必须与之一致。按形态定基调：
-   - `short-drama` 短剧 → 写实质感、都市光影（realistic, cinematic lighting）
-   - `short-film` 电影短片 → 电影感（cinematic, film grain, anamorphic）、明确的色彩体系
-   - `anime` 动漫番剧 → **锁定具体二次元流派**（如 modern anime style, cel shading / 90s retro anime / Ghibli-esque 等），
-     并在 style-bible 里固定这组风格关键词，所有设定图和视频提示词逐字复用，防止画风漂移
+1. **视觉圣经 + 风格锁（STYLE LOCK）**：`03-design/style-bible.md` 是全剧风格的**单一真源**。建项时 `/new-drama` 已按用户选的 `format.style` 预设，把一段 **STYLE LOCK 英文关键词块**写进其 `## 风格锁 STYLE LOCK（逐字复用，勿改）` 区。开工时：
+   - **先读 `project.json` 的 `format.style` 和 style-bible.md**。若为 `custom`（占位）或老项目无 style 字段，就按 medium 取默认、或依用户描述**现拟一段 STYLE LOCK** 补进该 `## 风格锁 STYLE LOCK（逐字复用，勿改）` 区
+   - **STYLE LOCK 块逐字保留、不得改写**（改了全剧就漂移）；在其下补全项目专属锚点：色调/光影/质感的具体化、每个角色与场景的视觉描述
+   - 后续所有图像和视频提示词都以 style-bible 为准。这套"锁定关键词、逐字复用防漂移"原本只用于动漫，现在**对所有风格预设一视同仁**（动漫的二次元流派锁定＝`anime-2d` 这个预设）
+   - **/design 出图前**若用户要改风格，先改（更新 `project.json.style` + 重写 `## 风格锁 STYLE LOCK（逐字复用，勿改）` 区）；一旦出了设定图/视频再改风格，已生成的图/视频作废需重做
 2. **角色设定图**：每个主要角色生成正面全身、侧面、面部特写至少 3 张，服装/发型/特征在所有图中严格一致。存为 `03-design/characters/<角色名>-front.png` / `-side.png` / `-face.png`
 3. **场景设定图**：分镜表中每个场景至少 1 张概念图，存为 `03-design/scenes/<场景名>.png`
 4. **一致性守门**：这些设定图会作为 `multimodal2video` 的参考图直接决定成片角色一致性，务必在提交定稿前自查各图之间是否为同一人/同一场景
@@ -66,7 +66,8 @@ dreamina query_result --submit_id=<id> --download_dir=<目标目录>
 
 ## 提示词要领
 
-- 用英文写；角色图固定句式开头：`Character reference sheet, full body, front view, ...`，并把 characters.md 里的外貌锚点逐条翻译进去
+- **每条出图提示词都以 style-bible 的 STYLE LOCK 关键词块开头（逐字复用，所有风格通用）**，再接主体描述——这样角色/场景设定图本身就带上了选定画风，和后续视频提示词的风格锁一致
+- 用英文写；角色图 STYLE LOCK 之后接固定句式：`Character reference sheet, full body, front view, ...`，并把 characters.md 里的外貌锚点逐条翻译进去
 - 同一角色的多张图，外貌描述部分逐字复用，只改视角
 - 场景图注明画幅（9:16 竖构图 / 16:9 横构图）、时代、光线、色调（与 style-bible 一致）
-- 动漫形态：每张图都以 style-bible 锁定的画风关键词开头（逐字），角色的标志性符号（发色/瞳色/服饰记号）必须在三视图中全部呈现
+- 动漫形态：STYLE LOCK 已锁画风；此外角色的标志性符号（发色/瞳色/服饰记号）必须在三视图中全部呈现
