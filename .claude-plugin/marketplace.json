@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "影视工作台插件源",
-    "version": "2.6.0"
+    "version": "2.7.0"
   },
   "renames": {
     "short-drama-studio": "film-studio"

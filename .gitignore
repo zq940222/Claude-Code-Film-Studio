@@ -5,3 +5,7 @@ projects/**/*.wav
 projects/**/_work/
 projects/**/_review/
 projects/**/_raw/
+
+# IDE / 编辑器配置
+.idea/
+.vscode/
