@@ -27,3 +27,17 @@ docs/superpowers/specs/         # 设计文档（含修订记录）
 6. **每次发布**：更新 `VERSION` + `.claude-plugin/plugin.json` 和 `marketplace.json` 的 version（三处一致）→ 记 `CHANGELOG.md` → `claude plugin validate .` 通过 → 提交 → `git tag v<版本>` → 推送（含 tags）
 7. 语义化版本：主=不兼容的流程/目录结构/命名变更；次=新增 agent/命令/能力；修订=修复与文档
 8. 本地验证：`claude plugin validate .`；本地试装：`claude plugin marketplace add <本仓库路径>` 后 `claude plugin install film-studio@film-studio`
+
+## Agent skills
+
+### Issue tracker
+
+Issue 跟踪在本仓库的 GitHub Issues（通过 `gh` CLI 读写）。See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+使用五个默认 triage 标签：needs-triage / needs-info / ready-for-agent / ready-for-human / wontfix。See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+单上下文布局：根目录 `CONTEXT.md` + `docs/adr/`。See `docs/agents/domain.md`.

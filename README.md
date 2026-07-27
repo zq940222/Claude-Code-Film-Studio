@@ -2,7 +2,7 @@
 
 **中文** | [English](README.en.md)
 
-![version](https://img.shields.io/badge/version-2.1.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
+![version](https://img.shields.io/badge/version-2.9.1-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
 
 在 Claude Code 中完成影视创作全流程的 AI 工作台，支持三种创作形态：**短剧 / 电影短片 / 动漫番剧**。从一句话创意到平台发布——剧本 → 分镜 → 角色/场景设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 平台发布。
 
@@ -83,6 +83,7 @@ claude plugin install film-studio@film-studio
 ```
 
 随时可用 `/studio-status` 查看所有项目进度、积分余额，并收割挂起的生成任务。
+需要图形化观测的话，另有独立仪表盘 [film-studio-dashboard](https://github.com/zq940222/film-studio-dashboard)（本地 web 应用，选定工作目录后只读观测项目进度/镜头/产物/积分，不影响任何流程与门禁）。
 
 **建议**：第一个项目先做 2-3 个镜头的迷你集，跑通流程并校准积分单价，再上正式剧集。
 

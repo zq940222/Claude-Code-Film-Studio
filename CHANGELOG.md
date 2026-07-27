@@ -1,5 +1,16 @@
 # 更新日志
 
+## [2.9.1] - 2026-07-27
+
+### 文档（可观测性仪表盘决策 + 仓库工程化文档）
+- **ADR 0001**：可观测性 UI 走独立 TS 应用 [film-studio-dashboard](https://github.com/zq940222/film-studio-dashboard)，
+  不内置于插件（规则 3 的 Python stdlib 约束撑不起现代 web UI）；仪表盘对工作区严格只读+轻操作，
+  不触发生成、不确认门禁、不回写文件；工作区文件格式是两者唯一的隐式契约
+- README（中/英）与 `templates/workspace-CLAUDE.md` 在 `/studio-status` 处提及仪表盘
+- 新增 `CONTEXT.md` 领域词汇表（工作区/项目/门禁/镜头/shotlist/风格锁/仪表盘/轻操作）
+- 新增 `docs/agents/`（issue tracker / triage 标签 / 域文档消费规则）与 CLAUDE.md `## Agent skills` 区块（仓库开发配置，不影响插件用户）
+- 修正 README 版本徽章（2.1.0 → 跟随当前版本）
+
 ## [2.9.0] - 2026-07-16
 
 ### 优化（风格库对照小云雀扩充 + 真人/2D/3D 分类）

@@ -2,7 +2,7 @@
 
 [中文](README.md) | **English**
 
-![version](https://img.shields.io/badge/version-2.1.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
+![version](https://img.shields.io/badge/version-2.9.1-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
 
 An AI studio for creating narrative video end-to-end inside Claude Code, in three formats: **short drama / short film / anime series**. From a one-line idea to platform publishing — script → storyboard → character/scene design → video generation → music → QC review → rough cut → JianYing (CapCut CN) fine cut (auto-generated draft) → publishing.
 
@@ -85,6 +85,7 @@ External dependencies (dreamina CLI, ffmpeg, agent-browser, pyJianYingDraft) are
 ```
 
 Run `/studio-status` anytime to see project progress, credit balance, and to collect pending generation tasks.
+For a graphical view, there is also a standalone dashboard, [film-studio-dashboard](https://github.com/zq940222/film-studio-dashboard) (a local web app: pick a workspace directory and get read-only observability over project progress / shots / deliverables / credits — it never touches the pipeline or the gates).
 
 **Tip**: For your first project, make a 2–3 shot mini episode to validate the pipeline and calibrate the credit cost per shot before committing to a full episode.
 
