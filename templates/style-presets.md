@@ -148,7 +148,7 @@ Seedance 无风格 LoRA/模型开关——所有风格都靠"提示词关键词 
 ### `custom` 自定义
 - 类别：任意；适用：全部
 - 由美术指导按用户描述**现拟一段 STYLE LOCK**（同样是英文关键词块，写进 style-bible.md），此后同样逐字复用锁定。
-- 用户想"复刻某个参考视频/影片风格"时选它，把参考要素翻译成关键词；如手上有参考视频，摄影可另用 `multimodal2video --video` 做风格参考（进阶，见 seedance-prompt-en）。
+- 用户想"复刻某个参考视频/影片风格"时选它，把参考要素翻译成关键词；如手上有参考视频，摄影可另用 `multimodal2video --video` 做风格参考（进阶，见插件 seedance-prompt 技能）。
 
 ---
 

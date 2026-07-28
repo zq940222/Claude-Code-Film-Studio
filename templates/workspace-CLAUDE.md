@@ -87,7 +87,7 @@
   否则默认 `pyJianYingDraft` 生成剪映草稿（不推销 Resolve），用户在剪映中微调导出
 - **平台发布** → 抖音创作者中心等网页端（`agent-browser` 浏览器自动化，半自动：发布前门禁④确认）
 - **文生文**（剧本/分镜/提示词/发布文案）→ Claude 本体
-- Seedance 提示词写作规范见 `seedance-prompt-en` 技能
+- Seedance 提示词写作规范见插件自带 `seedance-prompt` 技能（@引用役割、时间码切镜专章、运镜/景别中英对照）
 
 ## 项目目录规范
 
