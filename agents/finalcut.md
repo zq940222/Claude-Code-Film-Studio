@@ -86,7 +86,9 @@ macOS `~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft`。剪映未�
 `python -c "import pyJianYingDraft as d; help(d.ScriptFile)"`）。核心对象：
 
 - `DraftFolder(草稿目录)` → `create_draft(片名-epNN, width, height, fps=30)` 或 `ScriptFile(width, height, fps)`
-- `VideoSegment(素材路径, trange(...))` 逐镜头加入视频轨；镜头间转场用 `TransitionType`（克制使用：场内硬切，场与场之间才加，时长 ≤0.3s）
+- `VideoSegment(素材路径, trange(...))` 逐镜头加入视频轨；镜头间转场用 `TransitionType`（克制使用：场内硬切，场与场之间才加，时长 ≤0.3s）。
+  **镜间处理依据 = shotlist 每镜的 `transition_in`（或分镜"衔接"列）**：默认硬切；标 `转场·叠化/闪黑/回忆…` 才加对应转场；
+  标 `无缝衔接` 的相邻两镜零转场直拼（画面本就帧级连续，加转场反而穿帮）
 - `AudioSegment(bgm路径, trange(...), volume=...)` BGM 轨：按 bgm-notes.md 对位，**音量压低（约 -15dB）不盖台词原声**；即梦原声跟随视频片段自带，不要动
 - 片段入/出场动画：`IntroType`/`OutroType`（如片头素材淡入、场景切换微放大）；字幕动画 `TextIntro`/`TextOutro`
 - **对白字幕**：`ScriptFile.import_srt(对白 SRT)` 或 `TextSegment` 逐条加底部字幕轨：底部安全区、白字黑边、字号适配画幅（SRT 已是对白-only，VO 不在其中，不会重复）
