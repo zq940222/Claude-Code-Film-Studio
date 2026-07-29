@@ -2,7 +2,7 @@
 
 [中文](README.md) | **English**
 
-![version](https://img.shields.io/badge/version-2.11.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
+![version](https://img.shields.io/badge/version-2.12.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
 
 An AI studio for creating narrative video end-to-end inside Claude Code, in three formats: **short drama / short film / anime series**. From a one-line idea to platform publishing — script → storyboard → character/scene design → video generation → music → QC review → rough cut → JianYing (CapCut CN) fine cut (auto-generated draft) → publishing.
 
@@ -99,7 +99,7 @@ For a graphical view, there is also a standalone dashboard, [film-studio-dashboa
 | `/design` | Character/scene design images (Gemini web first) | ② Design approval |
 | `/shoot` | Prompts → credit quote → batch generation → download | ③ Quote confirmation (the only large credit spend) |
 | `/music` | Suno BGM + placement notes | - |
-| `/review` | Frame extraction QC, consistency checks, redo list | Redo passes Gate ③ again |
+| `/review` | AI frame-extraction QC + human interactive review (human verdict wins); feedback auto-drives prompt revision | Redo passes Gate ③ again |
 | `/finalcut` | **Primary path**: non-destructive fine cut — DaVinci Resolve Studio (recommended, auto-render) or JianYing draft (default, with pro transition/animation/filter asset library) | - |
 | `/edit` | Optional: lossless rough-cut preview (pacing) + hand-off package for manual fine-cutting | - |
 | `/publish` | Copy, cover image, semi-automatic publishing to Douyin etc. | ④ Pre-publish confirmation |

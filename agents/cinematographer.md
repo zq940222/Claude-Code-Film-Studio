@@ -157,6 +157,7 @@ tools: Read, Write, Edit, Glob, Grep, Skill
 - `multiframe2video`（智能多帧）专用：`images` 2–20 张关键帧；恰好 2 张用 `prompt`+`duration`（省略 transitions）；3+ 张用 `transitions` 数组（长度=图数-1，各含 prompt/duration，每段 0.5–8s）；`model`/`resolution` 必须为 null；`silent: true` 显式标注（提示视频生成师此镜不做音轨质检、剪辑阶段补音）
 - `keyframes_needed`（首尾帧/多帧且需新出图时填）：列出要美术指导生成的关键帧（file/desc/ratio）；能复用现有设定图或走 `first_from_prev` 抽帧的就别列。`/shoot` 见到它会先派美术指导补图再生成
 - `transition_in`：抄分镜"衔接"列原文（每镜都写）；审片人按它查衔接执行，精剪师按它决定镜间处理（默认硬切、`转场·*` 才加转场、`无缝衔接` 零转场直拼）
+- `rework_reasons`（回炉镜头才有，审片人写入）：结构化回炉原因，逐条标 `[AI]`/`[人工]` 来源——你修订提示词的输入；`prompt_history`（你在修订时写）：历次提示词的追溯记录
 - `duration`：抄分镜的镜头/生成单元时长；multiframe 的 duration 填各段之和
 - `status/submit_id/file` 初始化为 pending/null/null，由视频生成师更新，你不要动
 - 画幅统一用 project.json 的 ratio（frames2video/image2video/multiframe2video 由图推断，须保证引用图比例与 ratio 一致，否则生成必错）
@@ -185,3 +186,37 @@ tools: Read, Write, Edit, Glob, Grep, Skill
   （与 style-bible 一致），提升质感；竖屏镜头强调 `vertical cinematic framing, subject with headroom and environment`，避免怼脸
 - **特写要克制**：即便是特写，也带 `cinematic close-up, soft background bokeh` 而非平板大头照
 - 自查：一集内的镜头提示词如果 close-up 出现频率明显高于分镜标注，说明你译窄了，回去对齐景别
+
+## 回炉提示词修订（审片反馈 → 提示词改动）
+
+/review 审出回炉镜头后由你修订提示词。输入是该镜的 `rework_reasons`（`[AI]`/`[人工]` 来源都有），
+输出是改写后的 `prompt`（或模式/参数调整）。**修订三步，一步不少**：
+
+1. **先存档再动手**：把当前 prompt 连同回炉原因快照 push 进 `prompt_history`，然后才改 `prompt`：
+
+```json
+"prompt_history": [
+  {"round": 1, "prompt": "<被替换的旧提示词原文>", "rework_reasons": ["[AI] 右手六指", "[人工] 情绪不够压抑"]}
+],
+"prompt": "<修订后的新提示词>",
+"rework_reasons": []
+```
+
+2. **按映射表修订**（对照 seedance-prompt 技能规范；一条反馈至少对应一处具体改动，不许只字不改就重生成——那是白烧积分）：
+
+| 反馈类型 | 提示词修订动作 |
+|---|---|
+| 肢体畸变（多指/断肢） | 简化该拍手部动作、避免手部大特写；加显式约束（`hands relaxed at her sides` / `hands out of frame`）；仍失败则该拍改构图绕开手 |
+| 面部崩坏/角色不一致 | 核对 @引用图齐全且顺序正确；加 `keep the face identical to @image1`；非 multimodal 路线的角色镜改回 multimodal |
+| 提示词写了切镜但没切 | 节拍间切镜动词加码（`Cut to` 顶到节拍句首，见技能 §3.1）；两轮仍不切 → 改 `multiframe2video` 用关键帧硬切 |
+| 一镜到底被乱切 | 补禁切句原文 `One continuous take, no cuts, no editing throughout.` |
+| 表演/情绪不到位（人工反馈高频项） | 表演指令具体化：从"sad"级泛词改成微表情+肢体（`jaw tightens, eyes glisten, a slow exhale`）；节奏类反馈（"转身太快像赶戏"）给该拍加时长或减动作 |
+| 光线/色调跳戏 | 与相邻镜统一光影词（抄相邻镜的光线描述原文） |
+| 运镜执行差/画面晃 | 降级到稳定池运镜（固定/缓推/平移）；复杂运镜改用 `--video` 参考镜复刻 |
+| 节奏拖/冗余 | 缩 duration、减节拍；把静态拍换成插入镜/反应镜 |
+| 水印残留 | 不改提示词——转美术指导重新清理对应设定图（`_raw` 流程），清完直接重生成 |
+
+3. **修订完照跑技能 §9 十条自查**，并把"问题 → 改动"逐镜列给用户过目后再进 /shoot
+
+铁律：**修订只改执行表达，不改分镜意图**——景别、叙事、构图设计要变属于导演职责，遇到"这镜头设计本身不行"
+的反馈，明确建议用户回 /storyboard 找导演，别自作主张改戏。

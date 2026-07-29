@@ -2,7 +2,7 @@
 
 **中文** | [English](README.en.md)
 
-![version](https://img.shields.io/badge/version-2.11.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
+![version](https://img.shields.io/badge/version-2.12.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
 
 在 Claude Code 中完成影视创作全流程的 AI 工作台，支持三种创作形态：**短剧 / 电影短片 / 动漫番剧**。从一句话创意到平台发布——剧本 → 分镜 → 角色/场景设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 平台发布。
 
@@ -97,7 +97,7 @@ claude plugin install film-studio@film-studio
 | `/design` | 角色/场景设定图（Gemini 网页端优先） | ② 设定图定稿 |
 | `/shoot` | 提示词 → 积分报价 → 批量生成 → 下载 | ③ 报价确认（唯一大额耗积分环节） |
 | `/music` | Suno 网页端生成 BGM + 对位说明 | - |
-| `/review` | 抽帧质检、一致性检查、回炉清单 | 回炉需再过门禁③ |
+| `/review` | AI 抽帧初审 + 真人互动审片（人工判定优先），反馈自动转提示词修订 | 回炉需再过门禁③ |
 | `/finalcut` | **成片主推**：非破坏性精剪，Resolve Studio（推荐，可自动渲染）或剪映草稿（默认，含专业转场/动画/滤镜素材库） | - |
 | `/edit` | 可选：无损粗剪预览（看节奏）+ 人工精剪交付包 | - |
 | `/publish` | 发布文案、封面图、半自动发布抖音等平台 | ④ 发布前确认 |
@@ -116,7 +116,7 @@ claude plugin install film-studio@film-studio
 | composer | 配乐师 | Suno 网页端生成 BGM、对位说明 |
 | editor | 剪辑师 | ffmpeg 统一编码、粗剪拼接（保留原声）、精剪交付包 |
 | finalcut | 精剪师 | 自动组装精剪工程（Resolve API 或剪映草稿）：转场、BGM 对位、字幕轨、滤镜 |
-| reviewer | 审片人 | 抽帧质检：畸变、角色一致性、连贯性 |
+| reviewer | 审片人 | 抽帧质检：畸变、角色一致性、连贯性；互动审片合并人工反馈（人工优先） |
 | operator | 运营 | 发布文案、封面图、半自动发布（抖音/快手/视频号） |
 
 每个 agent 可单独调用，不必走完整流水线，例如：

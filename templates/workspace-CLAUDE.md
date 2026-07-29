@@ -57,12 +57,12 @@
 | screenwriter | 编剧 | 大纲、人物小传、分集剧本、台词（短剧靠台词直给+内心独白叙事；逐句标 `【对白】/【独白】`，动漫另用 `【旁白】`） |
 | director | 导演 | 分镜表：景别、运镜、时长、节奏；台词/音效列区分对白(同期)与内心独白(后期配音) |
 | art-director | 美术指导 | 角色/场景设定图 + 首尾帧/多帧关键帧（Gemini 网页端）；维护 style-bible 风格锁，视觉一致性 |
-| cinematographer | 摄影指导 | 分镜 → Seedance 2.0 提示词 → shotlist.json |
+| cinematographer | 摄影指导 | 分镜 → Seedance 2.0 提示词 → shotlist.json；回炉时按审片反馈修订提示词（prompt_history 追溯） |
 | video-generator | 视频生成师 | 按 shotlist 调 dreamina CLI 生成、轮询、下载 |
 | composer | 配乐师 | Suno 网页端生成 BGM + 对位说明 |
 | editor | 剪辑师 | ffmpeg 统一编码、粗剪拼接（保留原声）、精剪交付包 |
 | finalcut | 精剪师 | pyJianYingDraft 自动生成剪映草稿：转场、BGM 对位、字幕轨、内心独白配音、滤镜 |
-| reviewer | 审片人 | 抽帧质检、一致性检查、回炉清单 |
+| reviewer | 审片人 | 抽帧质检、一致性检查、互动审片（人工反馈优先、落 rework_reasons）、回炉清单 |
 | operator | 运营 | 发布文案、封面图、半自动发布抖音等平台（门禁④） |
 
 ## 生成引擎分工（按任务类型）
