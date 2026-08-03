@@ -4,7 +4,7 @@
 
 ![version](https://img.shields.io/badge/version-2.12.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
 
-在 Claude Code 中完成影视创作全流程的 AI 工作台，支持三种创作形态：**短剧 / 电影短片 / 动漫番剧**。从一句话创意到平台发布——剧本 → 分镜 → 角色/场景设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 平台发布。
+在 Claude Code 中完成影视创作全流程的 AI 工作台，支持四种创作形态：**短剧 / 电影短片 / 动漫番剧 / 创意段子**（无厘头搞笑短条，可挂商单做神转折广告植入接推广变现）。从一句话创意到平台发布——剧本 → 分镜 → 角色/场景设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 平台发布。
 
 由 11 个影视专业 agent 分工协作（编剧/导演/美术/摄影/运营按创作形态自动切换法则），通过分阶段 slash 命令推进，内置四道人工确认门禁（防止积分误消耗和误发布）。
 
@@ -70,7 +70,7 @@ claude plugin install film-studio@film-studio
 
 ```
 1. 安装插件后，在任意工作目录启动 Claude Code
-2. /new-drama        # 首次自动初始化工作区，然后建项：选创作形态（短剧/电影短片/动漫番剧）、题材、画幅、每集时长、集数
+2. /new-drama        # 首次自动初始化工作区，然后建项：选创作形态（短剧/电影短片/动漫番剧/创意段子）、题材、画幅、每集时长、集数
 3. /script           # 剧本创作，迭代到你满意 →【门禁① 定稿确认】
 4. /storyboard       # 剧本拆分镜表（镜号/景别/运镜/时长/画面/台词）
 5. /design           # 角色三视图 + 场景设定图 →【门禁② 定稿确认】
@@ -108,7 +108,7 @@ claude plugin install film-studio@film-studio
 | Agent | 角色 | 职责 |
 |---|---|---|
 | producer | 制片人 | 建项、进度、积分预算、门禁把关 |
-| screenwriter | 编剧 | 大纲、人物小传、分集剧本（按形态切换：短剧法则/电影叙事/动漫章节感） |
+| screenwriter | 编剧 | 大纲、人物小传、分集剧本（按形态切换：短剧法则/电影叙事/动漫章节感/段子玩梗），商单条做神转折/口播植入 |
 | director | 导演 | 分镜表：景别、运镜、时长、节奏（按形态调整镜头语言），兼顾 AI 生成可行性 |
 | art-director | 美术指导 | 设定图与全片视觉一致性（style-bible，动漫形态锁定画风流派） |
 | cinematographer | 摄影指导 | 分镜 → Seedance 2.0 提示词 → shotlist.json |

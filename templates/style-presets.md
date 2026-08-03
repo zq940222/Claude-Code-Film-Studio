@@ -16,7 +16,8 @@
 - 纯空镜（`text2video`）没有图锚点，**STYLE LOCK 是唯一的风格载体**，漂移风险最大——这类镜头尤其要原样前置；
 - 设定图必须**按选定风格生成**，否则图与关键词打架。整体是"强一致"，非逐帧像素级一致。
 
-选型建议：短剧/短片 → `真人` 类（默认 `cn-urban-realist`）；动漫 → `2D` 或 `3D` 类。
+选型建议：短剧/短片 → `真人` 类（默认 `cn-urban-realist`）；动漫 → `2D` 或 `3D` 类；
+创意段子 → 真人日常感（默认 `cn-urban-realist`，一本正经的写实感和荒诞剧情反差最大）或 `cartoon-3d`/`anime-2d`（夸张演出）。
 Seedance 无风格 LoRA/模型开关——所有风格都靠"提示词关键词 + 设定图画风"实现，不是切模型。
 
 每个预设含：`id`、中文名、类别、适用形态、**STYLE LOCK（逐字复用的英文关键词块）**、调色意图（供精剪）、备注。
@@ -26,7 +27,7 @@ Seedance 无风格 LoRA/模型开关——所有风格都靠"提示词关键词 
 ## 真人（live-action / photoreal）
 
 ### `cn-urban-realist` 国产都市写实
-- 类别：真人；适用：short-drama（默认）/ short-film
+- 类别：真人；适用：short-drama（默认）/ short-film / sketch（默认——写实底色让无厘头更好笑）
 - STYLE LOCK：`photorealistic contemporary Chinese urban drama, true-to-life skin and materials, natural cinematic lighting, shallow depth of field, 35mm look, clean neutral color, subtle film grain`
 - 调色意图：自然写实、略暖肤色、对比适中
 - 备注：都市逆袭/甜宠/职场等现代题材的稳妥底色（对标小云雀"国产都市写实"）
@@ -106,7 +107,7 @@ Seedance 无风格 LoRA/模型开关——所有风格都靠"提示词关键词 
 ## 2D（动画 / 手绘 / 插画）
 
 ### `anime-2d` 日系动漫（2D 手绘）
-- 类别：2D；适用：anime
+- 类别：2D；适用：anime / sketch
 - STYLE LOCK：`modern Japanese anime style, 2D cel shading, clean line art, vibrant flat colors, expressive large eyes, detailed anime background art, key-frame quality`
 - 调色意图：鲜明平涂、动漫感、干净线条
 - 备注：**动漫番剧首选**；即原"锁定二次元流派逐字复用"的预设化
@@ -132,7 +133,7 @@ Seedance 无风格 LoRA/模型开关——所有风格都靠"提示词关键词 
 ## 3D（三维 / CG）
 
 ### `cartoon-3d` 3D 卡通（皮克斯感）
-- 类别：3D；适用：anime / short-drama（轻喜/亲子）
+- 类别：3D；适用：anime / short-drama（轻喜/亲子）/ sketch（夸张演出）
 - STYLE LOCK：`3D cartoon render, Pixar-like stylized characters, soft global illumination, rounded appealing shapes, vivid colors, subsurface skin, polished CGI`
 - 调色意图：明快、柔和全局光、CG 质感
 - 备注：3D 动画质感

@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "影视工作台插件源",
-    "version": "2.12.0"
+    "version": "2.13.0"
   },
   "renames": {
     "short-drama-studio": "film-studio"
@@ -14,7 +14,7 @@
     {
       "name": "film-studio",
       "source": "./",
-      "description": "AI 影视创作全流程工作台（短剧/电影短片/动漫番剧）：剧本 → 分镜 → 设定图 → 即梦视频生成 → Suno 配乐 → 剪映精剪 → 抖音发布",
+      "description": "AI 影视创作全流程工作台（短剧/电影短片/动漫番剧/创意段子）：剧本 → 分镜 → 设定图 → 即梦视频生成 → Suno 配乐 → 剪映精剪 → 抖音发布（含商单广告植入变现）",
       "category": "productivity",
       "tags": ["film", "short-drama", "anime", "video", "aigc", "seedance", "jianying"]
     }

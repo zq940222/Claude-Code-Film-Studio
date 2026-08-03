@@ -2,7 +2,7 @@
 
 本仓库是 Claude Code 插件 **film-studio（影视工作台，原 short-drama-studio）** 的源码，同时是它的自托管 marketplace（`.claude-plugin/marketplace.json` 中 `source: "./"`，含 `renames` 记录旧名迁移）。
 
-在这里工作 = 开发插件本身；实际创作（短剧/电影短片/动漫番剧）应在独立工作目录进行（安装插件后 `/new-drama` 建项，工作区规范由 `templates/workspace-CLAUDE.md` 复制生成）。
+在这里工作 = 开发插件本身；实际创作（短剧/电影短片/动漫番剧/创意段子）应在独立工作目录进行（安装插件后 `/new-drama` 建项，工作区规范由 `templates/workspace-CLAUDE.md` 复制生成）。
 
 ## 仓库结构
 
@@ -22,7 +22,7 @@ docs/superpowers/specs/         # 设计文档（含修订记录）
 1. **工作台创作规范只改 `templates/workspace-CLAUDE.md`**（插件根的本 CLAUDE.md 不会被插件用户加载，只服务于仓库开发）
 2. skills 引用插件内文件时用相对于技能目录的路径（如 `../../tools/concat.py`）；agents 不知道插件根位置，凡是 agent 要用的文件必须在建项时复制进工作区
 3. **跨平台约束**：工具脚本只用 Python（stdlib）+ ffmpeg，禁止 PowerShell/bash 专属脚本；agent/skill 里的命令示例须两平台通用（正斜杠路径），平台差异处显式写明 Windows/macOS 两种写法
-4. **创作形态**：`project.json.format.medium`（short-drama/short-film/anime）驱动编剧/导演/美术/摄影/运营的法则切换；新增形态相关能力时三种形态都要覆盖
+4. **创作形态**：`project.json.format.medium`（short-drama/short-film/anime/sketch）驱动编剧/导演/美术/摄影/运营的法则切换；新增形态相关能力时四种形态都要覆盖。商单机制（sponsor brief）与形态解耦（见 `docs/adr/0002`），改商单相关能力时对所有形态生效
 5. **跨运行时兼容**：每个 SKILL.md 必须保留"运行时适配"块（subagent 降级为读 agents/*.md、AskUserQuestion 降级为对话询问）；新增技能时照抄该块——这保证插件 bundle 能装进 OpenClaw 等非 Claude Code 运行时
 6. **每次发布**：更新 `VERSION` + `.claude-plugin/plugin.json` 和 `marketplace.json` 的 version（三处一致）→ 记 `CHANGELOG.md` → `claude plugin validate .` 通过 → 提交 → `git tag v<版本>` → 推送（含 tags）
 7. 语义化版本：主=不兼容的流程/目录结构/命名变更；次=新增 agent/命令/能力；修订=修复与文档

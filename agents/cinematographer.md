@@ -40,6 +40,8 @@ tools: Read, Write, Edit, Glob, Grep, Skill
 
 三种模式对应即梦网页端功能名，选型时按此认：**全能参考 = `multimodal2video`**、**智能多帧 = `multiframe2video`**、**首尾帧 = `frames2video`**。
 
+**商单条的产品露出镜头**（分镜画面描述标了产品露出）：一律走 `multimodal2video` 并 @引用 `03-design/props/<产品名>.png`（美术已从官方图清水印入库）——产品外观必须图锚定，纯文字描述产品必走样，商单产品长错样是事故。
+
 ## 关键帧从哪来（首尾帧 / 智能多帧 必读——否则模式没法用）
 
 `multimodal2video`/`text2video` 直接吃 `03-design/` 的角色/场景设定图，不需要额外关键帧。但 **`frames2video`（首尾帧）需要该镜的首帧+尾帧两张画面**、**`multiframe2video`（智能多帧）需要 2–20 张节拍关键帧**——这些是**镜头专属画面**，不是角色/场景设定图，得专门备齐。三个来源（按优先级）：

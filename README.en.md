@@ -4,7 +4,7 @@
 
 ![version](https://img.shields.io/badge/version-2.12.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
 
-An AI studio for creating narrative video end-to-end inside Claude Code, in three formats: **short drama / short film / anime series**. From a one-line idea to platform publishing — script → storyboard → character/scene design → video generation → music → QC review → rough cut → JianYing (CapCut CN) fine cut (auto-generated draft) → publishing.
+An AI studio for creating narrative video end-to-end inside Claude Code, in four formats: **short drama / short film / anime series / comedy sketch** (absurdist short-form comedy, with optional sponsor briefs woven in as plot-twist ad placements for monetization). From a one-line idea to platform publishing — script → storyboard → character/scene design → video generation → music → QC review → rough cut → JianYing (CapCut CN) fine cut (auto-generated draft) → publishing.
 
 Eleven film-industry agents collaborate through staged slash commands (the screenwriter, director, art director, cinematographer, and operator automatically switch their craft rules per format), with four human-confirmation gates built in (preventing accidental credit spending and accidental publishing).
 
@@ -35,7 +35,7 @@ Restart your session after installing. The default scope is user-level (availabl
 - **Pin a version**: `claude plugin marketplace add zq940222/Claude-Code-Film-Studio@v2.0.0`
 - **Migrating from short-drama-studio**: run `claude plugin marketplace update short-drama-studio` and follow the renames migration; or uninstall the old plugin and reinstall with the commands above
 
-After installing, run `/new-drama` in **any working directory**: the first run bootstraps the workspace (copies the studio conventions CLAUDE.md and helper scripts), then creates your project — choosing the format (short drama / short film / anime). With the plugin namespace the command is `/film-studio:new-drama`; when there is no name clash, plain `/new-drama` works.
+After installing, run `/new-drama` in **any working directory**: the first run bootstraps the workspace (copies the studio conventions CLAUDE.md and helper scripts), then creates your project — choosing the format (short drama / short film / anime / comedy sketch). With the plugin namespace the command is `/film-studio:new-drama`; when there is no name clash, plain `/new-drama` works.
 
 ### Installing into other agents (cross-runtime)
 
@@ -72,7 +72,7 @@ External dependencies (dreamina CLI, ffmpeg, agent-browser, pyJianYingDraft) are
 
 ```
 1. After installing the plugin, launch Claude Code in any working directory
-2. /new-drama        # Bootstraps the workspace on first run, then creates the project: format (short drama/short film/anime), genre, aspect ratio, episode length, episode count
+2. /new-drama        # Bootstraps the workspace on first run, then creates the project: format (short drama/short film/anime/comedy sketch), genre, aspect ratio, episode length, episode count
 3. /script           # Script writing, iterate until satisfied → [Gate ① script approval]
 4. /storyboard       # Break the script into a shot table (shot no. / framing / camera move / duration / action / dialogue)
 5. /design           # Character turnarounds + scene concept art → [Gate ② design approval]
@@ -110,7 +110,7 @@ For a graphical view, there is also a standalone dashboard, [film-studio-dashboa
 | Agent | Role | Responsibilities |
 |---|---|---|
 | producer | Producer | Project setup, progress, credit budget, gatekeeping |
-| screenwriter | Screenwriter | Outline, character bios, episode scripts (per-format rules: short-drama hooks / short-film narrative / anime arc structure) |
+| screenwriter | Screenwriter | Outline, character bios, episode scripts (per-format rules: short-drama hooks / short-film narrative / anime arc structure / sketch gag escalation); weaves sponsor briefs into plot-twist or direct-address ad placements |
 | director | Director | Shot table: framing, camera moves, duration, pacing (per-format shot language) — mindful of AI-generation feasibility |
 | art-director | Art Director | Design images and series-wide visual consistency (style bible; locks an anime art style for anime projects) |
 | cinematographer | Cinematographer | Storyboard → Seedance 2.0 prompts → shotlist.json |
