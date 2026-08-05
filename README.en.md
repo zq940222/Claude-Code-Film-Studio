@@ -2,11 +2,11 @@
 
 [中文](README.md) | **English**
 
-![version](https://img.shields.io/badge/version-2.12.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
+![version](https://img.shields.io/badge/version-2.14.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
 
-An AI studio for creating narrative video end-to-end inside Claude Code, in four formats: **short drama / short film / anime series / comedy sketch** (absurdist short-form comedy, with optional sponsor briefs woven in as plot-twist ad placements for monetization). From a one-line idea to platform publishing — script → storyboard → character/scene design → video generation → music → QC review → rough cut → JianYing (CapCut CN) fine cut (auto-generated draft) → publishing.
+An AI studio for creating narrative video end-to-end inside Claude Code, in four formats: **short drama / short film / anime series / comedy sketch** (absurdist short-form comedy, with optional sponsor briefs woven in as plot-twist ad placements for monetization). From a one-line idea to platform publishing — script → storyboard → (Blender blockout previz to lock camera moves) → character/scene design → video generation → music → QC review → rough cut → JianYing (CapCut CN) fine cut (auto-generated draft) → publishing.
 
-Eleven film-industry agents collaborate through staged slash commands (the screenwriter, director, art director, cinematographer, and operator automatically switch their craft rules per format), with four human-confirmation gates built in (preventing accidental credit spending and accidental publishing).
+Twelve film-industry agents collaborate through staged slash commands (the screenwriter, director, art director, cinematographer, and operator automatically switch their craft rules per format), with four human-confirmation gates built in (preventing accidental credit spending and accidental publishing).
 
 > Formerly named short-drama-studio; renamed film-studio in v2.0.0 with multi-format support. Old repository URLs redirect automatically.
 
@@ -39,7 +39,7 @@ After installing, run `/new-drama` in **any working directory**: the first run b
 
 ### Installing into other agents (cross-runtime)
 
-All 11 skills carry a built-in "runtime adaptation" fallback, so the same plugin installs into multiple agents:
+All 12 skills carry a built-in "runtime adaptation" fallback, so the same plugin installs into multiple agents:
 
 - **OpenClaw** (supports Claude plugin bundles):
   ```bash
@@ -62,6 +62,7 @@ External dependencies (dreamina CLI, ffmpeg, agent-browser, pyJianYingDraft) are
 | JianYing (JianyingPro, Windows or macOS) | The fine-cut agent auto-generates JianYing drafts; 5.9 has the best draft compatibility, ≤6.8 supports auto-export (Windows only; export manually on macOS), newer versions encrypt drafts (limited support) | JianYing installed locally and can open drafts |
 | Python 3.8+ with `pyJianYingDraft` | JianYing draft generation + cross-platform helper scripts (use `python` on Windows, `python3` on macOS) | `python -c "import pyJianYingDraft"` succeeds (`python -m pip install pyJianYingDraft`) |
 | Douyin Creator Center (signed in via browser) | The operator agent publishes semi-automatically (user confirmation required before publishing) | Browser can open creator.douyin.com while logged in |
+| (Optional) **Blender 3.6+** | `/previz` blockout previz: builds a grey-model 3D blockout with camera animation and renders a camera-move reference clip (rendered locally, **spends no Dreamina credits**); without it the stage is simply skipped and nothing else is affected | `blender --version` |
 | (Optional) DaVinci Resolve Studio | Recommended fine-cut path: official Python API builds the timeline and can auto-render; external scripting requires the paid Studio edition — without it, fine cut falls back to JianYing | Resolve running and `import DaVinciResolveScript` connects |
 | `ffmpeg` / `ffprobe` | Local transcoding and concatenation (Windows: winget/scoop; macOS: `brew install ffmpeg`) | `ffmpeg -version` |
 | `agent-browser` | Browser-automation CLI (used for Gemini design images / Suno music / Douyin publishing) | `agent-browser --help` |
@@ -74,7 +75,8 @@ External dependencies (dreamina CLI, ffmpeg, agent-browser, pyJianYingDraft) are
 1. After installing the plugin, launch Claude Code in any working directory
 2. /new-drama        # Bootstraps the workspace on first run, then creates the project: format (short drama/short film/anime/comedy sketch), genre, aspect ratio, episode length, episode count
 3. /script           # Script writing, iterate until satisfied → [Gate ① script approval]
-4. /storyboard       # Break the script into a shot table (shot no. / framing / camera move / duration / action / dialogue)
+4. /storyboard       # Break the script into a shot table (shot no. / framing / camera move / duration / action / dialogue); complex camera moves get tagged 【白模】(blockout)
+   /previz           # (Optional, needs Blender) Build blockouts for complex camera moves/blocking and render camera-move reference clips — no credits spent
 5. /design           # Character turnarounds + scene concept art → [Gate ② design approval]
 6. /shoot            # Credit estimate → [Gate ③ confirmation] → batch-generate video shots (Dreamina videos include sound)
 7. /music            # Generate BGM with Suno (available once the script is approved; runs in parallel with 6/8)
@@ -96,6 +98,7 @@ For a graphical view, there is also a standalone dashboard, [film-studio-dashboa
 | `/new-drama` | Create a project with the standard layout and project.json | - |
 | `/script` | Outline, character bios, episode scripts | ① Script approval |
 | `/storyboard` | Shot table + duration accounting | - |
+| `/previz` | Optional: Blender blockout previz — locks complex camera moves and spatial relations (rendered locally, no credits) | - |
 | `/design` | Character/scene design images (Gemini web first) | ② Design approval |
 | `/shoot` | Prompts → credit quote → batch generation → download | ③ Quote confirmation (the only large credit spend) |
 | `/music` | Suno BGM + placement notes | - |
@@ -111,7 +114,8 @@ For a graphical view, there is also a standalone dashboard, [film-studio-dashboa
 |---|---|---|
 | producer | Producer | Project setup, progress, credit budget, gatekeeping |
 | screenwriter | Screenwriter | Outline, character bios, episode scripts (per-format rules: short-drama hooks / short-film narrative / anime arc structure / sketch gag escalation); weaves sponsor briefs into plot-twist or direct-address ad placements |
-| director | Director | Shot table: framing, camera moves, duration, pacing (per-format shot language) — mindful of AI-generation feasibility |
+| director | Director | Shot table: framing, camera moves, duration, pacing (per-format shot language) — mindful of AI-generation feasibility; tags complex camera moves for blockout previz |
+| previz-artist | Previz Artist | Optional blockout previz: builds grey-model proxy sets + camera animation in Blender and renders reference clips that lock camera path, spatial relations, and blocking |
 | art-director | Art Director | Design images and series-wide visual consistency (style bible; locks an anime art style for anime projects) |
 | cinematographer | Cinematographer | Storyboard → Seedance 2.0 prompts → shotlist.json |
 | video-generator | Video Generator | Drives dreamina submit/poll/download/retry with real-time accounting |
@@ -137,7 +141,9 @@ Every agent can be called individually — no need to run the full pipeline:
   - Shots with characters → `multimodal2video` (references character design images for cross-shot consistency)
   - Empty scene/atmosphere shots → `text2video`
   - Exact first/last frames → `frames2video`
+  - **Complex camera moves / exact spatial relations / blocking / oner** → `multimodal2video` + a blockout video reference (see below): the camera move is hard-controlled by the blockout instead of described in words
   - VIP channel by default to avoid queueing: `seedance2.0fast_vip` for regular shots, `seedance2.0_vip` for key shots; fall back to non-VIP models to save credits when not in a hurry
+- **Blockout previz** (optional, `/previz`) → local **Blender** (`tools/blender_blockout.py` builds a grey proxy set + camera animation from `blockout.json`, renders with Workbench, muxes with ffmpeg — **zero Dreamina credits**). The blockout locks camera/space/blocking only; style still comes from the STYLE LOCK + design images. Prompts follow a fixed three-sentence pattern (replicate / division-of-labor / **no-grey-look**) so the untextured 3D look never gets replicated into the final footage
 - **Background music** → Suno web app (browser automation); BGM is delivered as separate material, not mixed into the rough cut
 - **Fine cut** → dual path: with **DaVinci Resolve Studio** detected (recommended), the official Python API builds the timeline and can auto-render the final film; otherwise `pyJianYingDraft` generates a JianYing draft (transitions/BGM placement/subtitle track/filters) by default — not having Resolve blocks nothing
 - **Publishing** → Douyin Creator Center and other web consoles (browser automation, Gate ④ confirmation before publishing)
@@ -151,6 +157,7 @@ projects/<title>/
 ├── 01-script/             # outline.md, characters.md, ep01.md ...
 ├── 02-storyboard/         # ep01-storyboard.md ...
 ├── 03-design/             # style-bible.md, characters/, scenes/
+├── 03-previz/ep01/        # (optional) blockout.json spec + sh01-blockout.mp4 reference clips + previz-report.md
 ├── 04-footage/ep01/       # shotlist.json (task list + generation log) + sh01.mp4 ... + ep01.srt + bgm/
 ├── 05-final/              # <title>-ep01-roughcut.mp4 + delivery-ep01.md + finalcut-ep01.md
 └── 06-publish/ep01/       # copy.md + cover.png + publish-log.md
@@ -162,6 +169,7 @@ projects/<title>/
 2. No guessed credit prices: generate 1 calibration shot first, then quote from actual spending
 3. Failed generations retry once automatically — never in a loop
 4. Every submit_id is written to shotlist.json immediately; interrupted tasks can be collected later via `/studio-status`
+5. Blockout previz runs on local Blender at **zero credits**: dial the camera move in on the blockout first, turning "camera move is wrong → re-generate" credit burn into a free local re-render
 
 ## Scope (Delivery Boundary)
 
@@ -188,12 +196,13 @@ projects/<title>/
 
 ```
 .claude-plugin/            # Plugin manifest + self-hosted marketplace
-agents/                    # 11 professional agent definitions
-skills/                    # 11 staged slash commands
+agents/                    # 12 professional agent definitions
+skills/                    # 12 staged slash commands + the seedance-prompt spec skill
 templates/                 # Workspace convention template (copied as workspace CLAUDE.md by /new-drama)
-tools/                     # concat.py (normalize + concat) and clean_refimg.py (watermark cleanup), cross-platform, copied into workspaces
+tools/                     # concat.py (normalize + concat), clean_refimg.py (watermark cleanup), jianying_assets.py (JianYing assets), blender_blockout.py (blockout previz) — cross-platform, copied into workspaces
 VERSION / CHANGELOG.md     # Version number and changelog
 requirements.txt           # Python dependency (pyJianYingDraft)
+docs/adr/                  # Architecture decision records
 docs/superpowers/specs/    # Design docs (with revision history)
 ```
 

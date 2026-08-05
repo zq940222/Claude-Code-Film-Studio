@@ -33,6 +33,7 @@ description: Seedance 2.0（即梦）专业视频提示词规范：@引用役割
 | 首帧 / 尾帧 | `@image1 as the first frame / @image2 as the last frame` |
 | 服装/道具/产品 | `wearing the outfit from @image3` |
 | 运镜复刻 | `replicate the camera movement from @video1` |
+| **白模（3D blockout）运镜+空间** | `replicate the exact camera movement, framing and spatial layout from @video1 (a grey 3D blockout previz reference)` — 必须配禁灰面句，见 §十一 |
 | 动作编排 | `mimic the choreography from @video1` |
 | 特效/转场复刻 | `replicate the VFX and transitions from @video1` |
 | 节奏/卡点 | `match the pacing and beat of @audio1` |
@@ -44,7 +45,8 @@ description: Seedance 2.0（即梦）专业视频提示词规范：@引用役割
 |---|---|---|
 | 人物身份、构图/首尾画面 | **图** | 视觉信息密度最高，文字描述不可靠 |
 | 场景基底 | 图 + 文字改细节（天气/时段） | 图定底，文字微调 |
-| **运镜、切镜、节奏、叙事逻辑** | **文字** | 镜头语言是标准化术语，文字最直接、零额外成本 |
+| **运镜、切镜、节奏、叙事逻辑** | **文字**（复杂运镜例外，见下一行） | 镜头语言是标准化术语，文字最直接、零额外成本 |
+| **复杂运镜 / 精确空间关系 / 明确走位** | **白模视频**（3D blockout） | 环绕、升降、穿越、变焦、三人以上纵深、一镜到底调度——文字写得再细模型也只是猜；白模把机位轨迹和空间关系"演"一遍，本地渲不耗积分。见 §十一 |
 | 简单动作 | 文字 | 可描述的动作写出来即可 |
 | 复杂/独有动作、特效 | 参考视频 | 只有难以言传的才值得花一个视频位（且加价） |
 | 音色、旋律 | 音频 | 生物特征/旋律不可文字化 |
@@ -197,7 +199,7 @@ rule of thirds, subject off-center, negative space`；过肩 `over-the-shoulder`
 
 | 模式 | 提示词形态 |
 |---|---|
-| `multimodal2video` | 完整结构公式（@引用 + 时间码切镜），本规范主战场 |
+| `multimodal2video` | 完整结构公式（@引用 + 时间码切镜），本规范主战场；**唯一有视频参考位的模式**，白模走它（见 §十一） |
 | `text2video` | 同上但无 @引用——STYLE LOCK 是唯一风格载体，逐字前置，光影/构图词写满 |
 | `image2video` | 单拍句式：首帧是什么 + 怎么动 + 运镜一种 + 音效 |
 | `frames2video` | 一句话讲"从首帧到尾帧的运镜/演变"：`From the doorway silhouette (first frame), the camera slowly dollies right as she walks to the window (last frame)` |
@@ -215,6 +217,7 @@ rule of thirds, subject off-center, negative space`；过肩 `over-the-shoulder`
 8. 光影/时段与相邻镜一致吗（衔接不跳戏）？
 9. STYLE LOCK 逐字在最前吗？
 10. 引用的图路径真实存在吗（Glob 自查，别烧积分）？
+11. 有白模的镜头，**三句式（复刻句 / 分工句 / 禁灰面句）逐字都在吗**？运镜是否已交白模、文字没重复描述推拉摇移？（见 §十一）
 
 ## 十、整镜示例（短剧对峙戏，12s 三拍，multimodal2video）
 
@@ -232,3 +235,88 @@ Keep natural ambient sound throughout; cinematic composition, shallow depth of f
 ```
 
 三拍三个机位三个景别——这才叫"用满即梦的切镜能力"。
+
+---
+
+## 十一、白模（3D blockout）参考写法专章
+
+**白模** = 用 Blender 搭的无材质灰白代理场景 + 相机动画，渲成一段与目标镜头**同画幅、同时长**的参考视频
+（`03-previz/ep{NN}/sh{NN}-blockout.mp4`，由 `/previz` 阶段产出）。它是**运镜与空间关系的硬控制手段**：
+不再用形容词描述"缓慢环绕推近"让模型猜，而是把机位轨迹演一遍给它看。
+
+白模只能进 `multimodal2video` 的视频参考位（`--video`，≤3 个）。
+
+### 11.1 三句式（顺序固定，缺一句就出事）
+
+写在 STYLE LOCK 之后、时间码节拍之前：
+
+```
+① 复刻句  Replicate the exact camera movement, framing and spatial layout from @video1
+          (a grey 3D blockout previz reference).
+② 分工句  @video1 defines camera path, blocking and spatial relations only;
+          the woman from @image1 and the living room from @image2 define appearance.
+          （人物有走位时补：the character follows the same path as the proxy figure in @video1.）
+③ 禁灰面句 Do NOT reproduce the grey untextured 3D look of @video1 — render fully photorealistic
+          per the STYLE LOCK above; the blockout is spatial guidance, not visual style.
+```
+
+中文写法对照（全片用中文提示词时）：
+① `严格复刻 @视频1 的机位运动、取景与空间布局（该视频是灰白 3D 白模预演参考）。`
+② `@视频1 只负责相机轨迹、走位与空间关系；人物外形取自 @图片1，场景取自 @图片2。`
+③ `不要复刻 @视频1 的灰白无材质 3D 质感——按上方风格锁渲成完全写实的画面，白模只是空间指引、不是画面风格。`
+
+**第③句是全章最重要的一句。** 漏了它，成片会带着 3D 灰模渲染感/塑料质感——白模镜头一旦这样回炉，
+既烧了积分又白搭了白模工时，双倍浪费。
+
+### 11.2 在结构公式里的位置
+
+```
+[STYLE LOCK（逐字前置）]
++ [白模三句式：复刻句 → 分工句 → 禁灰面句]     ← 白模镜头在这里插入
++ [主体与场景：@image 引用 + 一句定位]
++ [时间码节拍：只写动作/表演/对白，不再写运镜]     ← 关键：运镜已交白模
++ [音频设计]
++ [收束修饰词]
+```
+
+**有白模就别在文字里重复描述推拉摇移**——两套指令打架，模型可能两边都不听。文字负责白模给不了的：
+光影质感、动作意图、表演情绪、对白、音效。
+
+### 11.3 与时间码切镜的配合
+
+白模是**一条连续相机路径**（白模内部不做硬切）：
+
+| 镜头形态 | 写法 |
+|---|---|
+| 一镜到底（`【一镜到底】`） | 白模最佳适配：三句式 + 禁切句 `One continuous take, no cuts, no editing throughout.` |
+| 单一连续运镜的常规镜 | 三句式 + 动作/音频描述即可 |
+| 多节拍长镜（内部要切镜） | ① 只给主运镜那一拍点名白模：`0-6s: … replicate the camera movement from @video1`，其余节拍照写切镜动词；② 每拍各一段白模（≤3 段）逐拍点名 @video1/@video2/@video3——②更强但**尚未充分验证，先跑 1 镜校准再铺开** |
+
+**"该切必切 / 不切要禁切"的规则不变**：白模不替你在切镜上表态。
+
+### 11.4 白模避坑五条
+
+1. **画幅必须一致**：白模画幅 ≠ 本集 ratio → 构图必错（重渲白模，免费；别重生成，烧积分）
+2. **时长必须一致**：白模时长 ≠ 该镜 duration → 运镜节奏对不上时间码
+3. **禁灰面句逐字在场**：见 11.1 第③句；仍残留质感则加码 `photorealistic, real skin and fabric texture, no CGI look`
+4. **别让白模承担长相**：白模里的人物只是柱体代理，脸/服装一律靠 @image 设定图；分工句就是干这个的
+5. **别给白模加贴图打灯**：白模越"像成片"，被复刻风格的风险越大——纯灰白才是对的
+
+### 11.5 白模整镜示例（12s 一镜到底，multimodal2video）
+
+```
+[STYLE LOCK: photorealistic contemporary chinese urban drama, natural skin texture,
+cinematic soft key light, teal-orange grade, 9:16 vertical framing]
+Replicate the exact camera movement, framing and spatial layout from @video1
+(a grey 3D blockout previz reference).
+@video1 defines camera path, blocking and spatial relations only;
+the woman from @image1 and the mansion living room from @image2 define appearance;
+the character follows the same path as the proxy figure in @video1.
+Do NOT reproduce the grey untextured 3D look of @video1 — render fully photorealistic
+per the STYLE LOCK above; the blockout is spatial guidance, not visual style.
+She walks from the sofa to the floor-to-ceiling window, then turns toward the corridor;
+warm late-afternoon light rakes across the room; ambient room tone, footsteps on marble,
+fabric rustle. One continuous take, no cuts, no editing throughout.
+```
+
+通篇没有一句在写"推/拉/摇/移"——运镜全由白模承担，这才是白模的正确用法。

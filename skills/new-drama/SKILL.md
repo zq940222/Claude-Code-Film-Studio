@@ -18,8 +18,10 @@ description: 新建影视项目（短剧/电影短片/动漫番剧/创意段子�
 本技能目录的上两级是插件根目录（含 `templates/` 和 `tools/`）。检查当前工作目录：
 
 - 无 `CLAUDE.md` → 把插件根的 `templates/workspace-CLAUDE.md` 复制为工作区 `./CLAUDE.md`（工作台创作规范，之后会话自动加载）；已有 CLAUDE.md 则展示规范要点提示用户手动合并，**不要覆盖**
-- 工作区 `tools/` 缺 `concat.py`、`clean_refimg.py` 或 `jianying_assets.py` → 从插件根的 `tools/` 复制过来（分别用于粗剪拼接、清水印、精剪查剪映素材；跨平台 Python 脚本）
+- 工作区 `tools/` 缺 `concat.py`、`clean_refimg.py`、`jianying_assets.py` 或 `blender_blockout.py` → 从插件根的 `tools/` 复制过来（分别用于粗剪拼接、清水印、精剪查剪映素材、白模预演；跨平台 Python 脚本）
 - 检查 `python -c "import pyJianYingDraft"`（macOS 用 `python3`），失败则提示 `python -m pip install pyJianYingDraft`（/finalcut 精剪要用，可先跳过不阻塞建项）
+- 顺带探测 `blender --version`（**可选依赖**，只有 `/previz` 白模预演用到）：没装就一句话告知
+  "复杂运镜想用白模锁死可装 Blender 3.6+（免费，blender.org）；不装不影响其余全部流程"，**不追问、不阻塞建项**
 
 ## 流程
 
@@ -40,7 +42,8 @@ description: 新建影视项目（短剧/电影短片/动漫番剧/创意段子�
    - 创意段子 → `cn-urban-realist 国产都市写实`（真人日常感，反差最大）/ `cartoon-3d 3D卡通`（夸张演出）/ `anime-2d 2D手绘` / 更多
    - `custom 自定义`：让用户描述想要的风格（或参考影片），记下，稍后由美术指导拟 STYLE LOCK
 3. 调度 **producer** agent 建项：创建 `projects/<片名>/` 全套目录（01-script、02-storyboard、
-   03-design/characters、03-design/scenes、04-footage、05-final）和 project.json（**含 `format.medium` 创作形态与 `format.style` 选定风格**）
+   03-design/characters、03-design/scenes、03-previz、04-footage、05-final）和 project.json（**含 `format.medium` 创作形态与 `format.style` 选定风格**）
+   （`03-previz/` 是可选的白模预演产物目录，与 `03-design/` 同属"视觉预备"层）
 4. **写风格锁桩到 style-bible.md（单一真源）**：在 `03-design/style-bible.md` 顶部写入**固定结构**的风格锁区（标题逐字照抄下方，各 agent 靠这行标题定位）：
    ```
    ## 风格锁 STYLE LOCK（逐字复用，勿改）

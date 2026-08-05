@@ -2,11 +2,11 @@
 
 **中文** | [English](README.en.md)
 
-![version](https://img.shields.io/badge/version-2.12.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
+![version](https://img.shields.io/badge/version-2.14.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
 
-在 Claude Code 中完成影视创作全流程的 AI 工作台，支持四种创作形态：**短剧 / 电影短片 / 动漫番剧 / 创意段子**（无厘头搞笑短条，可挂商单做神转折广告植入接推广变现）。从一句话创意到平台发布——剧本 → 分镜 → 角色/场景设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 平台发布。
+在 Claude Code 中完成影视创作全流程的 AI 工作台，支持四种创作形态：**短剧 / 电影短片 / 动漫番剧 / 创意段子**（无厘头搞笑短条，可挂商单做神转折广告植入接推广变现）。从一句话创意到平台发布——剧本 → 分镜 →（Blender 白模预演锁运镜）→ 角色/场景设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 平台发布。
 
-由 11 个影视专业 agent 分工协作（编剧/导演/美术/摄影/运营按创作形态自动切换法则），通过分阶段 slash 命令推进，内置四道人工确认门禁（防止积分误消耗和误发布）。
+由 12 个影视专业 agent 分工协作（编剧/导演/美术/摄影/运营按创作形态自动切换法则），通过分阶段 slash 命令推进，内置四道人工确认门禁（防止积分误消耗和误发布）。
 
 > 本项目原名 short-drama-studio（短剧工作台），v2.0.0 起更名 film-studio 并扩展为多形态；旧仓库地址自动重定向。
 
@@ -37,7 +37,7 @@ claude plugin install film-studio@film-studio
 
 ### 在其他 Agent 中安装（跨运行时兼容）
 
-本插件的 11 个技能内置了"运行时适配"降级逻辑，同一份插件可装进多种 Agent：
+本插件的 12 个技能内置了"运行时适配"降级逻辑，同一份插件可装进多种 Agent：
 
 - **OpenClaw**（支持 Claude 插件 bundle）：
   ```bash
@@ -60,6 +60,7 @@ claude plugin install film-studio@film-studio
 | 剪映（JianyingPro，Windows/macOS 均可） | 精剪师自动生成剪映草稿；5.9 草稿兼容最完整，≤6.8 支持自动导出（仅 Windows；macOS 手动导出），新版草稿加密支持有限 | 本机已安装剪映，能打开草稿 |
 | Python 3.8+ 与 `pyJianYingDraft` | 剪映草稿生成 + 跨平台工具脚本（Windows 命令用 `python`，macOS 用 `python3`） | `python -c "import pyJianYingDraft"` 不报错（`python -m pip install pyJianYingDraft`） |
 | 抖音创作者中心（浏览器已登录） | 运营 agent 半自动发布（发布前必经用户确认） | 浏览器能打开 creator.douyin.com 且已登录 |
+| （可选）**Blender 3.6+** | `/previz` 白模预演：给复杂运镜镜头搭灰白 3D 白模 + 相机动画渲成运镜参考视频（本地渲染、**不耗即梦积分**）；未装则跳过该阶段，不影响其余流程 | `blender --version` |
 | （可选）DaVinci Resolve Studio | 精剪推荐路径：官方 Python API 自动建时间线 + 自动渲染导出；外部脚本控制仅 Studio 付费版支持，未装则精剪走剪映 | Resolve 运行中且 `import DaVinciResolveScript` 可连接 |
 | `ffmpeg` / `ffprobe` | 本地转码与拼接（Windows: winget/scoop；macOS: `brew install ffmpeg`） | `ffmpeg -version` |
 | `agent-browser` | 浏览器自动化 CLI（Gemini 设定图 / Suno 配乐 / 抖音发布均依赖） | `agent-browser --help` |
@@ -72,7 +73,8 @@ claude plugin install film-studio@film-studio
 1. 安装插件后，在任意工作目录启动 Claude Code
 2. /new-drama        # 首次自动初始化工作区，然后建项：选创作形态（短剧/电影短片/动漫番剧/创意段子）、题材、画幅、每集时长、集数
 3. /script           # 剧本创作，迭代到你满意 →【门禁① 定稿确认】
-4. /storyboard       # 剧本拆分镜表（镜号/景别/运镜/时长/画面/台词）
+4. /storyboard       # 剧本拆分镜表（镜号/景别/运镜/时长/画面/台词）；复杂运镜镜头会标【白模】
+   /previz           # （可选，装了 Blender 才有）给复杂运镜/走位镜头搭白模，渲运镜参考视频锁死机位——不耗积分
 5. /design           # 角色三视图 + 场景设定图 →【门禁② 定稿确认】
 6. /shoot            # 报积分预估 →【门禁③ 确认】→ 批量生成视频镜头（即梦视频自带声音）
 7. /music            # Suno 生成背景音乐（剧本定稿后即可做，可与生成/审片并行）
@@ -94,6 +96,7 @@ claude plugin install film-studio@film-studio
 | `/new-drama` | 新建项目，生成标准目录和 project.json | - |
 | `/script` | 大纲、人物小传、分集剧本 | ① 剧本定稿 |
 | `/storyboard` | 分镜表 + 时长核算 | - |
+| `/previz` | 可选：Blender 白模预演，锁复杂运镜与空间关系（本地渲染，不耗积分） | - |
 | `/design` | 角色/场景设定图（Gemini 网页端优先） | ② 设定图定稿 |
 | `/shoot` | 提示词 → 积分报价 → 批量生成 → 下载 | ③ 报价确认（唯一大额耗积分环节） |
 | `/music` | Suno 网页端生成 BGM + 对位说明 | - |
@@ -109,7 +112,8 @@ claude plugin install film-studio@film-studio
 |---|---|---|
 | producer | 制片人 | 建项、进度、积分预算、门禁把关 |
 | screenwriter | 编剧 | 大纲、人物小传、分集剧本（按形态切换：短剧法则/电影叙事/动漫章节感/段子玩梗），商单条做神转折/口播植入 |
-| director | 导演 | 分镜表：景别、运镜、时长、节奏（按形态调整镜头语言），兼顾 AI 生成可行性 |
+| director | 导演 | 分镜表：景别、运镜、时长、节奏（按形态调整镜头语言），兼顾 AI 生成可行性；复杂运镜标【白模】交预演 |
+| previz-artist | 白模师 | 可选白模预演：Blender 搭灰白代理场景+相机动画，渲成运镜参考视频锁死机位/空间/走位 |
 | art-director | 美术指导 | 设定图与全片视觉一致性（style-bible，动漫形态锁定画风流派） |
 | cinematographer | 摄影指导 | 分镜 → Seedance 2.0 提示词 → shotlist.json |
 | video-generator | 视频生成师 | 调 dreamina 提交/轮询/下载/重试，实时记账 |
@@ -135,7 +139,11 @@ claude plugin install film-studio@film-studio
   - 含角色镜头 → `multimodal2video`（引用角色设定图，保证跨镜头角色一致性）
   - 纯场景空镜 → `text2video`
   - 精确首尾画面 → `frames2video`
+  - **复杂运镜/精确空间/走位/一镜到底** → `multimodal2video` + 白模视频参考（见下条），运镜由白模硬控制而非文字描述
   - 默认走 VIP 通道防排队：常规镜头 `seedance2.0fast_vip`，重点镜头 `seedance2.0_vip`；不赶时间想省积分可退回非 VIP 通道
+- **白模预演**（可选，`/previz`）→ 本地 **Blender**（`tools/blender_blockout.py` 按 `blockout.json` 搭灰白代理场景+相机动画，
+  Workbench 渲帧 + ffmpeg 封装，**零即梦积分**）。白模只锁运镜/空间/走位，风格仍由 STYLE LOCK + 设定图承载；
+  提示词固定"三句式"（复刻句/分工句/**禁灰面句**）防止 3D 灰模质感被复刻进成片
 - **背景音乐** → Suno 网页端（浏览器自动化）；BGM 作为独立素材交付，不混入粗剪
 - **精剪** → 双路径：检测到 **DaVinci Resolve Studio**（推荐）走官方 Python API 建时间线、可自动渲染导出；
   否则默认 `pyJianYingDraft` 生成剪映草稿（转场/BGM 对位/字幕轨/滤镜），剪映中微调导出——没装 Resolve 不影响任何流程
@@ -150,6 +158,7 @@ projects/<片名>/
 ├── 01-script/             # outline.md、characters.md、ep01.md ...
 ├── 02-storyboard/         # ep01-storyboard.md ...
 ├── 03-design/             # style-bible.md、characters/、scenes/
+├── 03-previz/ep01/        # （可选）blockout.json 白模规格 + sh01-blockout.mp4 白模参考视频 + previz-report.md
 ├── 04-footage/ep01/       # shotlist.json（任务清单兼生成日志）+ sh01.mp4 ... + ep01.srt + bgm/
 ├── 05-final/              # <剧名>-ep01-粗剪.mp4 + delivery-ep01.md + finalcut-ep01.md（精剪说明）
 └── 06-publish/ep01/       # copy.md（发布文案）+ cover.png（封面）+ publish-log.md（发布记录）
@@ -161,6 +170,7 @@ projects/<片名>/
 2. 积分单价不凭空假设：首次建议只生成 1 镜校准单价，之后按实际消耗报价
 3. 生成失败自动重试仅 1 次，绝不无限重试
 4. 每个 submit_id 即时写入 shotlist.json，任务不丢失，中断后 `/studio-status` 可收割
+5. 白模预演走本地 Blender，**零积分**：运镜先在白模里调对再生成，把"运镜不对→回炉重生成"的积分损耗前移成免费的本地重渲
 
 ## 范围说明（交付边界）
 
@@ -186,12 +196,13 @@ projects/<片名>/
 
 ```
 .claude-plugin/            # 插件 manifest + 自托管 marketplace
-agents/                    # 11 个专业 agent 定义
-skills/                    # 11 个阶段 slash 命令 + seedance-prompt 提示词规范技能
+agents/                    # 12 个专业 agent 定义
+skills/                    # 12 个阶段 slash 命令 + seedance-prompt 提示词规范技能
 templates/                 # 工作区规范模板（/new-drama 建项时复制为工作区 CLAUDE.md）
-tools/                     # concat.py（转码拼接）+ clean_refimg.py（水印清理），跨平台，建项时复制进工作区
+tools/                     # concat.py（转码拼接）+ clean_refimg.py（水印清理）+ jianying_assets.py（剪映素材）+ blender_blockout.py（白模预演），跨平台，建项时复制进工作区
 VERSION / CHANGELOG.md     # 版本号与更新日志
 requirements.txt           # Python 依赖（pyJianYingDraft）
+docs/adr/                  # 架构决策记录
 docs/superpowers/specs/    # 设计文档（含修订记录）
 ```
 

@@ -24,6 +24,13 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 1. **校验入参**（按 mode 分别查，越界不提交、直接标 failed 报告，避免白烧）：
    - 引用的图片/关键帧文件存在且非空
    - `multimodal2video`/`text2video`：duration ∈ 4–15；ratio 合法（1:1/3:4/16:9/4:3/9:16/21:9）；resolution 若填须为 `720p`
+   - **白模/视频参考位**（`multimodal2video` 带 `videos` 时）：文件都存在且非空、**数量 ≤3**（audios 同 ≤3、images ≤9）；
+     其中 `blockout` 指向的白模视频还要用 ffprobe 多查两项——**画幅比例须与本集 ratio 一致**、**时长与该镜 duration 差 ≤0.5s**：
+     ```bash
+     ffprobe -v error -show_entries format=duration:stream=width,height -of json "<白模.mp4>"
+     ```
+     任一不符**不要提交**（白模错了照着它生成必错），报告"白模画幅/时长与该镜不符：<文件名>"，
+     请回 `/previz` 用 `--only sh{NN}` 重渲白模（免费）后再来——**别拿错白模烧积分**。白模无音轨属正常，不查
    - `image2video`：按模型查 duration（seedance2.0 家族 4–15 / 3.5pro 4–12 / 3.0 家族 3–10）与 resolution（seedance=720p；3.5pro/3.0=720p或1080p；3.0pro=1080p）；ratio 由图推断（不传）
    - `frames2video`（首尾帧）：`first`/`last` 两张关键帧文件都存在且非空（若 `first_from_prev` 非空则先抽帧生成 first，见下）；按模型查 duration（seedance 4–15 / 3.5pro 4–12 / 3.0 3–10）与 resolution（seedance=720p；3.5pro/3.0=720p或1080p）
    - `multiframe2video`（智能多帧）：`images` 2–20 张关键帧文件都存在且非空；transitions 段数=图数-1（或恰好 2 张走 prompt+duration 简写）；每段 0.5–8s、总时长 ≥2s；**不得带 model/resolution**（该命令不支持）
@@ -39,6 +46,8 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 ```bash
 # multimodal2video（--image/--video/--audio 可各重复多次，image 顺序对应 @image1..N；audio 2-15s）
 dreamina multimodal2video --image "<img1>" --image "<img2>" --prompt="<prompt>" --duration=<n> --ratio=<ratio> --video_resolution=720p --model_version=<model> --poll=30
+#   带白模/参考视频时追加 --video（顺序对应 @video1..N，≤3 个）：
+dreamina multimodal2video --image "<img1>" --video "<03-previz/ep01/sh03-blockout.mp4>" --prompt="<prompt>" --duration=<n> --ratio=<ratio> --video_resolution=720p --model_version=<model> --poll=30
 # text2video
 dreamina text2video --prompt="<prompt>" --duration=<n> --ratio=<ratio> --model_version=<model> --poll=30
 # image2video（ratio 由图推断；1080p 空镜/静物走 3.5pro/3.0pro）
@@ -97,6 +106,7 @@ ffprobe -v error -show_entries format=duration:stream=codec_type,codec_name,widt
   - 注意：**缺音轨不在此列**（见"音轨判定"，只记 warning 不重生成）
 - **终态不重试**（重试只会再失败白烧钱）：`AigcComplianceConfirmationRequired`、积分不足、入参非法（图片路径错/参数越界/时长分辨率组合非法）——直接标 failed 并在报告里点名原因
 - **确定性错误不要自动重生成，改为报用户**：画幅不过且 mode 是 `frames2video`/`image2video`/**`multiframe2video`**（画幅均由输入图推断）——同一张图重生成必然再错，应报告"引用图比例与本集 ratio 不符"，请摄影/美术换图或改 ratio，别烧积分空转
+  - **白模镜头同理**：入参校验就该拦下画幅/时长不符的白模（见校验步骤）；若已提交后出画幅问题，报告"白模与本集 ratio 不符"请回 `/previz` 重渲白模，不要用同一个白模重生成
 - 严禁"质检失败→自动重生成→再质检"的循环烧钱；重生成上限就是每镜 1 次
 
 ## 汇报格式
@@ -107,3 +117,4 @@ ffprobe -v error -show_entries format=duration:stream=codec_type,codec_name,widt
 - 生成前后积分余额对比（`dreamina user_credit`），并把本次实际积分消耗写入 project.json 的 credits 字段（长镜更贵，如实记录以校准后续报价）
 - 有 failed 镜头时明确告知：可回 /shoot 重拍（属门禁③范围），或让审片人 /review 先看已成功镜头
 - 有 `qc_warning` 缺音轨的镜头，提醒精剪阶段补音
+- **带白模的镜头单列一行**（镜号 + 白模文件），并提醒审片人重点查两件事：运镜是否照白模走、有没有灰面质感残留

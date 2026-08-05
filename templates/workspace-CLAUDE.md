@@ -2,7 +2,7 @@
 
 <!-- 本文件由 film-studio 插件的 /new-drama 建项时生成，是本工作区的创作规范 -->
 
-这是一个 AI 影视创作工作区，支持四种创作形态：**短剧 / 电影短片 / 动漫番剧 / 创意段子**。通过 film-studio 插件的 11 个影视专业 agent 和分阶段命令，完成从创意到平台发布的全流程：剧本 → 分镜 → 设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 平台发布。
+这是一个 AI 影视创作工作区，支持四种创作形态：**短剧 / 电影短片 / 动漫番剧 / 创意段子**。通过 film-studio 插件的 12 个影视专业 agent 和分阶段命令，完成从创意到平台发布的全流程：剧本 → 分镜 →（白模预演）→ 设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 平台发布。
 
 ## 创作形态（project.json 的 format.medium）
 
@@ -52,7 +52,8 @@ project.json 的 `sponsors.ep{NN}` 记品牌名与状态摘要（`briefed → sc
 /new-drama 建项 → /script 剧本 →【门禁① 剧本定稿】→ /storyboard 分镜 → /design 设定图
 →【门禁② 设定图定稿】→ /shoot 视频生成 →【门禁③ 积分报价确认】→ /review 审片
 → /finalcut 精剪成片（剪映/达芬奇时间线，非破坏性、直接用原始片段）→ /publish 发布 →【门禁④ 发布确认】
-                        /edit 粗剪预览（可选，快速看节奏）      /music 配乐（剧本定稿后即可并行）
+        /previz 白模预演（可选，分镜后；锁复杂运镜，不耗积分）
+        /edit 粗剪预览（可选，快速看节奏）      /music 配乐（剧本定稿后即可并行）
 ```
 
 - **成片走 `/finalcut`**（非破坏性，直接引用原始 sh*.mp4，最终只渲染一次，质量最好）。
@@ -68,7 +69,8 @@ project.json 的 `sponsors.ep{NN}` 记品牌名与状态摘要（`briefed → sc
 |---|---|---|
 | producer | 制片人 | 建项、进度跟踪、积分预算、门禁把关 |
 | screenwriter | 编剧 | 大纲、人物小传、分集剧本、台词（短剧靠台词直给+内心独白叙事；逐句标 `【对白】/【独白】`，动漫另用 `【旁白】`）；商单条按 brief 做神转折/口播植入并附商单核对单 |
-| director | 导演 | 分镜表：景别、运镜、时长、节奏；台词/音效列区分对白(同期)与内心独白(后期配音) |
+| director | 导演 | 分镜表：景别、运镜、时长、节奏；台词/音效列区分对白(同期)与内心独白(后期配音)；复杂运镜可标 `【白模】` 交预演 |
+| previz-artist | 白模师 | Blender 白模预演（可选）：给复杂运镜/精确空间/走位的镜头搭灰白代理场景+相机动画，渲成运镜参考视频 |
 | art-director | 美术指导 | 角色/场景设定图 + 首尾帧/多帧关键帧（Gemini 网页端）；维护 style-bible 风格锁，视觉一致性 |
 | cinematographer | 摄影指导 | 分镜 → Seedance 2.0 提示词 → shotlist.json；回炉时按审片反馈修订提示词（prompt_history 追溯） |
 | video-generator | 视频生成师 | 按 shotlist 调 dreamina CLI 生成、轮询、下载 |
@@ -88,6 +90,8 @@ project.json 的 `sponsors.ep{NN}` 记品牌名与状态摘要（`briefed → sc
   - 即梦网页端功能名 ↔ CLI 模式：**全能参考=`multimodal2video`、智能多帧=`multiframe2video`、首尾帧=`frames2video`**
   - 纯场景空镜 → `text2video`
   - 含角色镜头（全能参考）→ `multimodal2video`（引用角色设定图保证一致性，image≤9；连续戏用 8-15s 长镜+时间码多节拍讲，一致性与原声都保住）
+  - **复杂运镜/精确空间/明确走位/一镜到底调度** → `multimodal2video` + `--video` 白模参考（先走 `/previz` 出白模）：
+    运镜由白模硬控制而非文字描述；提示词必须写**三句式**（复刻句/分工句/**禁灰面句**），漏禁灰面句会把 3D 灰模质感复刻进成片
   - 精确控制首尾画面（首尾帧）→ `frames2video`；单图动起来/尾帧衔接 → `image2video`
   - 一段连续动作有 2-20 张关键帧图（智能多帧）→ `multiframe2video`（切镜插值成连贯段落，**静音、无模型/分辨率参数**，音轨由精剪补）
   - **关键帧来源**：首尾帧/智能多帧需要镜头专属关键帧（非角色/场景设定图）——由美术指导按 shotlist 的 `keyframes_needed` 用 Gemini 出图（省积分、走水印清理）落 `03-design/keyframes/`；衔接首帧由视频生成师用 ffmpeg 从上一镜抽尾帧
@@ -95,6 +99,9 @@ project.json 的 `sponsors.ep{NN}` 记品牌名与状态摘要（`briefed → sc
   - **模型默认走 VIP 通道防排队**：常规镜头 `seedance2.0fast_vip`，重点镜头 `seedance2.0_vip`；
     非 VIP 通道（`seedance2.0fast`/`seedance2.0`）仅在用户明确要求省积分且不赶时间时用
   - **音轨**：multimodal/text/image/frames 系自带声音（台词/音效），全流程保留；`multiframe2video` 静音属正常，音轨在精剪阶段补齐——**全流程必须保留音轨，但静音由精剪补齐，不因缺音轨重生成烧积分**
+- **白模预演**（可选，`/previz`）→ 本地 **Blender**（`tools/blender_blockout.py` 按 `blockout.json` 搭灰白代理场景+相机动画，
+  Workbench 渲帧、ffmpeg 封装）。**零即梦积分**；产物 `03-previz/ep{NN}/sh{NN}-blockout.mp4` 必须与该镜**同画幅、同时长**，
+  只锁运镜/空间/走位、不锁风格。没装 Blender 就跳过，不影响其余流程
 - **背景音乐** → Suno 网页端（`agent-browser` 浏览器自动化）；BGM 是精剪素材，不混入粗剪
 - **精剪** → 检测到 DaVinci Resolve Studio（**推荐**，官方 Python API，可自动渲染导出）则优先征询使用；
   否则默认 `pyJianYingDraft` 生成剪映草稿（不推销 Resolve），用户在剪映中微调导出
@@ -110,13 +117,15 @@ projects/<片名>/
 ├── 01-script/             # outline.md, characters.md, ep01.md ...（商单条另有 ep{NN}-sponsor.md 商单 brief）
 ├── 02-storyboard/         # ep01-storyboard.md ...
 ├── 03-design/             # characters/<角色>-*.png, scenes/<场景>-*.png, keyframes/ep{NN}-sh{NN}-*.png（首尾帧/多帧关键帧）, props/<产品名>.png（商单产品官方图）, style-bible.md（含风格锁 STYLE LOCK，全剧风格单一真源）
+├── 03-previz/ep01/        # （可选）blockout.json 白模规格 + sh{NN}-blockout.mp4 白模参考视频 + previz-report.md
 ├── 04-footage/ep01/       # shotlist.json + sh01.mp4 ... + ep01.srt + bgm/（Suno BGM + 对位说明）
 ├── 05-final/              # <剧名>-ep01-粗剪.mp4 + delivery-ep01.md + finalcut-ep01.md（精剪说明）
 └── 06-publish/ep01/       # copy.md（发布文案）+ cover.png（封面）+ publish-log.md（发布记录）
 ```
 
 - 镜头命名：`ep{两位集号}` / `sh{两位镜号}`，如 `04-footage/ep01/sh03.mp4`
-- `project.json.status` 各阶段取值：`pending | in_progress | approved | done`
+- `project.json.status` 各阶段取值：`pending | in_progress | approved | done`；可选的 `status.previz` 另有 `skipped`（跳过白模，不影响流程）
+- `03-*` 是"视觉预备"层：设定图 `03-design/` 与白模预演 `03-previz/` 并列同层（白模是可选阶段产物）
 - `shotlist.json` 是摄影指导与视频生成师之间的交接件，也是生成日志（记录 submit_id、状态、产物路径），生成过程中必须实时更新
 
 ## 硬性安全规则
@@ -128,6 +137,8 @@ projects/<片名>/
 5. `/shoot` 前必须 `dreamina user_credit` 检查余额；首次生成后记录实际消耗，校准后续报价（积分单价不得凭空假设）。
 6. 遇到 `AigcComplianceConfirmationRequired` 错误：停下，提示用户去即梦 Web 端完成内容安全授权后重试。
 7. **未经门禁④确认，绝不点击任何平台的发布按钮**（含"确认定时发布"）；平台账号登录永远由用户本人完成。
+8. **白模必须与该镜同画幅、同时长**，否则不许提交生成（照错白模生成必错）——重渲白模免费，重生成烧积分；
+   白模提示词的**禁灰面句不可省**（漏了会把 3D 灰模质感复刻进成片，属必回炉的双倍浪费）。
 
 ## 交付边界
 
@@ -142,6 +153,9 @@ projects/<片名>/
 - Gemini 网页端（设定图）、Suno 网页端（BGM）、抖音创作者中心（发布）需要浏览器已登录对应账号
 - Python 3.8+：Windows 命令用 `python`，macOS 用 `python3`（下文 `python` 按此对应）
 - `pyJianYingDraft`：`python -m pip install pyJianYingDraft`；剪映版本：5.9 草稿兼容最完整，≤6.8 支持自动导出（**仅 Windows**，macOS 需在剪映中手动导出），更新版本草稿加密支持有限
+- （可选）**Blender 3.6+**（[blender.org](https://www.blender.org)，免费）：只有 `/previz` 白模预演用到，未装不影响任何其他流程。
+  Blender 自带 Python，无需装包；不在 PATH 时用完整路径调用——
+  Windows `"C:/Program Files/Blender Foundation/Blender 4.2/blender.exe"`、macOS `/Applications/Blender.app/Contents/MacOS/Blender`
 - （可选）DaVinci Resolve **Studio**：装了并运行时精剪走官方 API（外部脚本控制仅 Studio 版支持，免费版不行）；未装不影响任何流程
 - 剪映草稿目录：Windows `%LOCALAPPDATA%\JianyingPro\User Data\Projects\com.lveditor.draft`；macOS `~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft`
 - `ffmpeg` 在 PATH 中（Windows: winget/scoop；macOS: `brew install ffmpeg`）；拼接用工作区 `tools/concat.py`（建项时由插件复制而来）

@@ -8,7 +8,8 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 
 ## 职责
 
-1. **建项**：在 `projects/<剧名>/` 下创建标准目录结构（01-script、02-storyboard、03-design、04-footage、05-final）和 `project.json`
+1. **建项**：在 `projects/<剧名>/` 下创建标准目录结构（01-script、02-storyboard、03-design、03-previz、04-footage、05-final）和 `project.json`
+   （`03-*` 是"视觉预备"层：设定图 `03-design/` 与白模预演 `03-previz/` 并列同层，白模是可选阶段产物）
 2. **进度管理**：维护 `project.json.status`，每个阶段完成后更新状态
 3. **积分预算**：用 `dreamina user_credit` 查余额；跟踪每次生成的实际消耗，维护积分单价的经验值
 4. **门禁把关**：三个门禁（剧本定稿、设定图定稿、生成前报价）未获用户确认前，绝不放行下一阶段。
@@ -30,6 +31,7 @@ tools: Read, Write, Edit, Glob, Grep, Bash
   "status": {
     "script": "pending",
     "storyboard": "pending",
+    "previz": "pending",
     "design": "pending",
     "footage": "pending",
     "final": "pending"
@@ -40,6 +42,8 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 ```
 
 状态取值：`pending | in_progress | approved | done`。
+`status.previz` 是**可选的白模预演阶段**（`/previz`，给复杂运镜镜头搭 Blender 白模），另有取值 `skipped`
+（用户跳过或本机没装 Blender）——**跳过不影响任何后续阶段**；老项目无此字段视为未做，由你补写。
 `format.medium` 是创作形态，编剧/导演/美术/摄影都会按它切换法则，建项时必填；老项目没有此字段时默认 `short-drama`。
 `format.style` 是选定的整体画风预设（写实都市/电影质感/2D手绘/3D卡通…，见插件 `templates/style-presets.md`），建项时选定并把其 STYLE LOCK 写进 style-bible.md 保证全剧一致；**老项目无此字段时按 medium 取默认**（short-drama→`cn-urban-realist` 国产都市写实、short-film→`cinematic-film` 电影质感、anime→`anime-2d` 2D手绘、sketch→`cn-urban-realist` 国产都市写实）。用户想换风格由你改此字段，但**已出设定图/视频后换风格＝那些产物作废需重做**，务必提醒。
 `editing` 是剪辑增强选项（集间交叉衔接 / 片头片尾），**默认全关**；用户中途要求"加片头"、"要衔接"时由你更新此块（老项目无此块视为全关）。
@@ -49,6 +53,9 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 
 - 报价前先查 `dreamina user_credit`
 - **不要凭空假设积分单价**。如果 `credits.notes` 里没有历史消耗记录，报价时明确说明"单价未知，建议先生成 1 个镜头校准"
+- **白模预演（`/previz`）零即梦积分**（Blender 本地渲染），不进报价；但白模会让该镜多带一路视频参考位，
+  **视频参考位按即梦规则可能加价**——门禁③报价时把"含白模/视频参考的镜头数"单列一行，单价未知就照实说
+  "该项单价未知，建议先拿 1 个白模镜校准"，不要把它混进普通镜头一起估
 - 每次生成任务完成后，对比生成前后的余额，把单次消耗写进 `credits.notes`
 - 余额不足以完成整批任务时，停下报告，给出"减镜头/换更省的模型（fast_vip 或非 VIP 通道）/充值"三种选项
 

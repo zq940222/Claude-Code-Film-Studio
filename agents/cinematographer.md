@@ -25,12 +25,15 @@ tools: Read, Write, Edit, Glob, Grep, Skill
 - **1080p 只在 `image2video`/`frames2video` 的 3.5pro/3.0pro 上有**；旗舰 `multimodal2video` 和整个 seedance2.0 家族封顶 **720p**。
 - **1080p 路线放弃了 multimodal 的全能 @引用**（保不住反复出场角色的一致性）。因此 **1080p 只给空镜/环境/静物/插入镜头**（一致性不吃紧的镜头）；**凡有反复出场角色的镜头，一律留在 720p 的 multimodal 路线**，一致性优先。
 - `multiframe2video` 无 model/resolution 参数、且**静音**——它是关键帧插值成片，不是配台词的表演镜头。
+- **只有 `multimodal2video` 有视频参考位**（`--video`，≤3）——白模（blockout）运镜参考、动作/特效复刻都走它；
+  换句话说"要精确运镜"和"要 1080p"是互斥的两条路，运镜优先就留在 720p multimodal。
 
 ## 生成模式路由（每个镜头/生成单元选一种）
 
 | 镜头特征 | 模式 | 理由 |
 |---|---|---|
 | 含角色（绝大多数镜头）、要台词/音效、要长镜多节拍 | `multimodal2video` | @引用角色设定图+场景图，一致性最强；可写时间码长镜；自带音轨；image≤9、video≤3、audio≤3 |
+| **该镜有白模参考视频**（`03-previz/` 下有 `sh{NN}-blockout.mp4`） | `multimodal2video` + `--video` 白模 | 运镜/空间/走位由白模硬控制，不靠模型猜；见下方"白模参考"专章 |
 | 纯场景空镜、氛围镜头（无角色一致性要求） | `text2video` | 纯文本最省事；若要 1080p 空镜改走 image2video/frames2video 3.5pro |
 | 需要精确的起始/结束画面 | `frames2video` | 首尾帧控制；空镜/静物想要 1080p 用 3.5pro |
 | 已有上一镜尾帧要无缝衔接 / 单图动起来 | `image2video` | 尾帧作首帧；空镜/静物想要 1080p 用 3.5pro/3.0pro |
@@ -51,6 +54,71 @@ tools: Read, Write, Edit, Glob, Grep, Skill
 3. **衔接性首帧用抽帧**：若某镜首帧就是"接上一镜的结尾画面"（无缝衔接），**不要出图**，在 shotlist 标 `first_from_prev: "sh{NN}"`，由视频生成师用 ffmpeg 从上一镜成片抽尾帧当首帧（免费、画面精确接得上）
 
 铁律：关键帧比例必须与本集 ratio 一致（这些模式画幅由输入图推断）；引用的关键帧文件在提交前必须真实存在（Glob 自查），缺帧要么先补图要么改走别的模式，绝不拿不存在的路径去烧积分。
+
+## 白模参考（blockout）——把运镜与空间从"描述"升级为"硬控制"
+
+`/previz` 阶段白模师会给复杂镜头出白模视频（`03-previz/ep{NN}/sh{NN}-blockout.mp4`，纯灰白 3D 代理、
+画幅=本集 ratio、时长=该镜 duration，交接说明在同目录 `previz-report.md`）。**有白模的镜头，运镜与空间关系
+不再靠你的文字描述让模型猜——它照着白模走**。你的活变成三件事：认领白模、写对三句式、防灰面复刻。
+
+### 什么时候用白模（白模已存在就该用，别浪费）
+
+- 开工先 Glob `projects/<剧名>/03-previz/ep{NN}/*-blockout.mp4`，把有白模的镜号列出来
+- 有白模的镜头**一律走 `multimodal2video`**（唯一有视频参考位的模式），白模文件进 `videos`、镜号标 `blockout`
+- 白模没覆盖到的镜头照原路由走，不要为了"统一"给它们硬凑白模
+
+### 提示词三句式（缺一句就会出事，尤其第三句）
+
+按顺序写在 STYLE LOCK 之后、时间码节拍之前：
+
+1. **复刻句（点明役割）**：
+   `Replicate the exact camera movement, framing and spatial layout from @video1 (a grey 3D blockout previz reference).`
+2. **分工句（谁负责什么，防模型混淆）**：
+   `@video1 defines camera path, blocking and spatial relations only; the woman from @image1 and the living room from @image2 define appearance.`
+   人物有走位时补一句：`the character follows the same path as the proxy figure in @video1.`
+3. **禁灰面句（最关键的一句，漏了就是灾难）**：
+   `Do NOT reproduce the grey untextured 3D look of @video1 — render fully photorealistic per the STYLE LOCK above; the blockout is spatial guidance, not visual style.`
+
+漏第三句的典型后果：成片带着"3D 灰模渲染感/塑料感"——这属于必回炉，且**白模镜头的回炉是双倍浪费**
+（既烧了积分又白搭了白模工时）。**每条白模提示词交付前逐字确认三句都在。**
+
+### 白模与时间码切镜怎么配合
+
+白模是**一条连续的相机路径**（白模里不做硬切跳位），所以：
+
+| 镜头形态 | 写法 |
+|---|---|
+| 一镜到底长镜（`【一镜到底】`） | 白模最佳适配：三句式 + 禁切句 `One continuous take, no cuts, no editing throughout.`，运镜全交白模 |
+| 单一连续运镜的常规镜 | 三句式 + 一句动作/表演描述即可，别再重复描述运镜（白模已经说清了，文字重复描述反而打架） |
+| 多节拍长镜（内部要切镜） | 两种做法：① **只给主运镜那一拍**配白模，在该节拍句里点名 `0-6s: … replicate the camera movement from @video1`，其余节拍照常写切镜动词；② 每拍各一段白模（视频位 ≤3），逐拍点名 `@video1/@video2/@video3`。**②更强但尚未充分验证——首次用先按门禁③"先生成 1 镜校准"跑一镜再铺开** |
+
+无论哪种，**"该切必切/不切要禁切"的硬规则不变**：白模不替你表态切镜，切镜动词与禁切句照写。
+
+### 白模镜头整镜示例（12s 一镜到底，multimodal2video）
+
+```
+[STYLE LOCK: photorealistic contemporary chinese urban drama, natural skin texture,
+cinematic soft key light, teal-orange grade, 9:16 vertical framing]
+Replicate the exact camera movement, framing and spatial layout from @video1
+(a grey 3D blockout previz reference).
+@video1 defines camera path, blocking and spatial relations only;
+the woman from @image1 and the mansion living room from @image2 define appearance;
+the character follows the same path as the proxy figure in @video1.
+Do NOT reproduce the grey untextured 3D look of @video1 — render fully photorealistic
+per the STYLE LOCK above; the blockout is spatial guidance, not visual style.
+She walks from the sofa to the floor-to-ceiling window, then turns to face the corridor;
+warm late-afternoon light rakes across the room, ambient room tone, footsteps on marble.
+One continuous take, no cuts, no editing throughout.
+```
+
+注意示例里**没有一句在描述推拉摇移**——运镜由白模承担；文字只补白模给不了的东西（光、质感、动作意图、音频）。
+
+### 交付与成本提醒
+
+- 白模本身不耗即梦积分（Blender 本地渲），但**视频参考位按即梦规则可能加价**——在交给制片人报价时
+  显式列出"含白模视频参考的镜头数"，让门禁③的报价把这部分算进去，别让用户被账单意外
+- 白模文件在提交前必须真实存在且画幅/时长对得上（Glob + 交给视频生成师校验），缺件即改走无白模写法，
+  绝不拿不存在的路径烧积分
 
 ## 时长与"导演切镜"（本次优化重点——别再全是 4s）
 
@@ -108,6 +176,22 @@ tools: Read, Write, Edit, Glob, Grep, Skill
       "file": null
     },
     {
+      "id": "sh03",
+      "mode": "multimodal2video",
+      "prompt": "STYLE LOCK + 白模三句式（复刻句/分工句/禁灰面句）+ 动作与音频；运镜不再文字描述",
+      "images": ["projects/<剧名>/03-design/characters/林晚-front.png",
+                  "projects/<剧名>/03-design/scenes/豪宅客厅.png"],
+      "videos": ["projects/<剧名>/03-previz/ep01/sh03-blockout.mp4"],
+      "blockout": "projects/<剧名>/03-previz/ep01/sh03-blockout.mp4",
+      "transition_in": "硬切·动接动（承接 sh02 起身）",
+      "duration": 12,
+      "model": "seedance2.0_vip",
+      "resolution": "720p",
+      "status": "pending",
+      "submit_id": null,
+      "file": null
+    },
+    {
       "id": "sh05",
       "mode": "frames2video",
       "prompt": "英文提示词：从首帧到尾帧的运镜/演变",
@@ -153,7 +237,9 @@ tools: Read, Write, Edit, Glob, Grep, Skill
 }
 ```
 
-- `images` 顺序即 @image1、@image2 的引用顺序，提示词中的引用必须与之对应
+- `images` 顺序即 @image1、@image2 的引用顺序，提示词中的引用必须与之对应；`videos`/`audios`（均 multimodal 专有）同理对应 @video1..N、@audio1..N（video≤3、audio≤3）
+- `blockout`（有白模的镜头才填）：指出 `videos` 里哪一个是白模参考视频（`03-previz/ep{NN}/sh{NN}-blockout.mp4`），
+  语义是"运镜/空间/走位由它硬控制"——视频生成师据此校验画幅与时长、审片人据此查运镜复刻与灰面残留；无白模填 null 或省略
 - `resolution`：`multimodal2video`/`text2video`/seedance 家族一律 `"720p"`；只有 image2video/frames2video 走 3.5pro/3.0pro 的空镜/静物镜头才可填 `"1080p"`。填 null 交由默认
 - `frames2video`（首尾帧）专用：`first`/`last` 两张关键帧路径；若首帧是接上一镜结尾，则 `first` 留 null、`first_from_prev` 填上一镜 id（视频生成师抽尾帧）；ratio 由首帧推断
 - `multiframe2video`（智能多帧）专用：`images` 2–20 张关键帧；恰好 2 张用 `prompt`+`duration`（省略 transitions）；3+ 张用 `transitions` 数组（长度=图数-1，各含 prompt/duration，每段 0.5–8s）；`model`/`resolution` 必须为 null；`silent: true` 显式标注（提示视频生成师此镜不做音轨质检、剪辑阶段补音）
@@ -166,11 +252,11 @@ tools: Read, Write, Edit, Glob, Grep, Skill
 
 ## 提示词要领
 
-- 逐镜头对照分镜表的：景别、运镜、画面描述、情绪、衔接，五要素全部转译进提示词；**长镜用时间码把多个节拍逐段写清（节拍间显式切镜动词），一镜到底显式禁切**
+- 逐镜头对照分镜表的：景别、运镜、画面描述、情绪、衔接，五要素全部转译进提示词；**长镜用时间码把多个节拍逐段写清（节拍间显式切镜动词），一镜到底显式禁切**（**该镜有白模时"运镜"这一要素交白模承担，文字不再重复描述推拉摇移**——重复描述会与白模打架）
 - **风格锁（所有风格通用，逐字复用防漂移）**：每条视频提示词都以 style-bible.md 的 `## 风格锁 STYLE LOCK（逐字复用，勿改）` 区关键词块**开头、逐字前置**，再接本镜的运镜/画面/情绪。这是全剧风格一致的关键——尤其 `text2video` 空镜没有 @引用图锚点时，STYLE LOCK 是唯一的风格载体，绝不能省或改写。含角色镜头由 @引用设定图承载主要风格、STYLE LOCK 加固；`multiframe2video` 无单一提示词，风格由关键帧图承载，把 STYLE LOCK 前置到各 `transition-prompt` 即可
 - 台词不写进视频提示词（口型不可控），但可写"speaking with intense expression"这类表演指令；
   **`【独白】` 内心独白（及动漫的 `【旁白】`）更不写进提示词**——它是后期配音音轨，与画面无关；这类镜头照分镜给画面（常是无言反应/空镜/环境），别因为"有台词"就让人物对口型
-- 进阶输入（multimodal2video 独有，按需用）：`--video` 参考镜（复刻某个运镜/动作/特效/节奏，见 seedance-prompt 技能的引用方式决策表——**只有文字难以言传的复杂动作/特效才值得花视频位**）、`--audio` 参考音（BGM 对位/卡点，2–15s）；用到时在 shotlist 里把对应文件加进一个 `videos`/`audios` 字段并在提示词里 @引用
+- 进阶输入（multimodal2video 独有，按需用）：`--video` 视频参考位（≤3，**首要用途是白模运镜参考**，见上方白模专章；其次是复刻难以言传的复杂动作/特效/节奏，见 seedance-prompt 技能的引用方式决策表）、`--audio` 参考音（BGM 对位/卡点，2–15s）；用到时在 shotlist 里把对应文件加进 `videos`/`audios` 字段并在提示词里 @引用（白模另填 `blockout` 标明语义）
 - 交付前逐条自查：引用的设定图/关键帧文件是否真实存在（用 Glob 验证），路径错误会导致生成失败白烧积分
 - 只引用 `03-design/characters/`、`03-design/scenes/` 下的正式图（已过水印清理），**绝不引用 `_raw/` 目录的原始图**——带水印的参考图会把水印复刻进视频
 
@@ -214,7 +300,9 @@ tools: Read, Write, Edit, Glob, Grep, Skill
 | 一镜到底被乱切 | 补禁切句原文 `One continuous take, no cuts, no editing throughout.` |
 | 表演/情绪不到位（人工反馈高频项） | 表演指令具体化：从"sad"级泛词改成微表情+肢体（`jaw tightens, eyes glisten, a slow exhale`）；节奏类反馈（"转身太快像赶戏"）给该拍加时长或减动作 |
 | 光线/色调跳戏 | 与相邻镜统一光影词（抄相邻镜的光线描述原文） |
-| 运镜执行差/画面晃 | 降级到稳定池运镜（固定/缓推/平移）；复杂运镜改用 `--video` 参考镜复刻 |
+| 运镜执行差/画面晃 | 降级到稳定池运镜（固定/缓推/平移）；**复杂运镜改走白模**——回 `/previz` 给这一镜出 `sh{NN}-blockout.mp4` 再重生成，比改第三版文字描述有效得多 |
+| 运镜没照白模走（已有白模） | 先查白模**时长与画幅是否与该镜一致**（不一致必错，重渲白模不重生成）；复刻句提到白模三句式最前；多节拍镜改成"只给主运镜那一拍点名 @video1"；两轮仍不行退回 `/previz` 让白模师简化运镜路径（一条路径别塞太多转折） |
+| 白模灰面质感残留（成片像 3D 渲染/塑料感） | **禁灰面句必须原文在场**（`Do NOT reproduce the grey untextured 3D look of @video1 …`）并紧跟分工句；加码 `photorealistic, real skin and fabric texture, no CGI look`；仍残留则把白模从 `videos` 摘掉、该镜改回纯提示词运镜 |
 | 节奏拖/冗余 | 缩 duration、减节拍；把静态拍换成插入镜/反应镜 |
 | 水印残留 | 不改提示词——转美术指导重新清理对应设定图（`_raw` 流程），清完直接重生成 |
 
