@@ -1,0 +1,19 @@
+{
+  "name": "film-studio",
+  "interface": {
+    "displayName": "影视工作台 Film Studio"
+  },
+  "plugins": [
+    {
+      "name": "film-studio",
+      "source": {
+        "source": "local",
+        "path": "./plugins/film-studio"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

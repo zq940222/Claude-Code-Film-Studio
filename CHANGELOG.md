@@ -1,5 +1,25 @@
 # 更新日志
 
+## [3.0.0] - 2026-08-06
+
+### 变更（目录结构：插件下沉到 `plugins/film-studio/`，换来 Codex CLI 一键安装）
+实测 codex-cli 0.139.0 后确认：Codex 原生认 `.claude-plugin/plugin.json` 与 `skills/*/SKILL.md`，
+但**只读 `.agents/plugins/marketplace.json`**、且**要求插件位于 marketplace 根的子目录**（`source: "./"` 自托管会被拒）。
+为让同一份插件在两个运行时都能用官方命令安装，做了主版本级重构（决策记录见 `docs/adr/0004`）：
+
+- **插件本体移入 `plugins/film-studio/`**（`agents/`、`skills/`、`tools/`、`templates/`、`.claude-plugin/plugin.json` 整体下沉）；
+  仓库层的 README/CHANGELOG/docs/requirements.txt 不再进插件 bundle
+- **新增 Codex marketplace 清单 `.agents/plugins/marketplace.json`**；`.claude-plugin/marketplace.json` 的 `source` 改指 `./plugins/film-studio`，
+  `renames`（short-drama-studio → film-studio）保留
+- **插件 manifest 仍是唯一一份**：Codex 的清单发现顺序 `.codex-plugin/` → `.claude-plugin/` → `.cursor-plugin/`，直接复用 Claude 那份，避免版本号双份漂移
+- **技能的"运行时适配"块补上 Codex**：Codex 不加载插件内 `agents/*.md` 为子代理，12 个 agent 一律走"读 md 就地执行"的降级路径；
+  门禁降级为对话确认。3 个 agent 里"用 Skill 工具加载 agent-browser"改成运行时中立写法（有 Skill 工具就用，没有就直接读 SKILL.md）
+- **README 双语新增 Codex 安装章节**；`CLAUDE.md` 发布检查表更新为四处同步 + 两条校验（`claude plugin validate .` 与 `claude plugin validate plugins/film-studio --strict`）
+
+### 升级说明
+已安装用户需重新添加 marketplace（源地址不变）：Claude Code `claude plugin marketplace update film-studio`（或移除后重新 add）；
+创作工作区与 `projects/` 数据格式**零变化**，无需迁移。
+
 ## [2.14.0] - 2026-08-05
 
 ### 新增（Blender 白模预演：把运镜与空间从"文字描述"升级为"硬控制"）

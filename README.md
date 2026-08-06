@@ -2,7 +2,7 @@
 
 **中文** | [English](README.en.md)
 
-![version](https://img.shields.io/badge/version-2.14.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
+![version](https://img.shields.io/badge/version-3.0.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20Windows%20%7C%20macOS-lightgrey)
 
 在 Claude Code 中完成影视创作全流程的 AI 工作台，支持四种创作形态：**短剧 / 电影短片 / 动漫番剧 / 创意段子**（无厘头搞笑短条，可挂商单做神转折广告植入接推广变现）。从一句话创意到平台发布——剧本 → 分镜 →（Blender 白模预演锁运镜）→ 角色/场景设定图 → 视频生成 → 配乐 → 审片 → 粗剪 → 剪映精剪（自动生成草稿）→ 平台发布。
 
@@ -12,7 +12,7 @@
 
 ## 安装（Claude Code 插件）
 
-本仓库是标准 Claude Code 插件（自托管 marketplace），命令行两步安装：
+本仓库是自托管 marketplace（插件本体在 `plugins/film-studio/`），命令行两步安装：
 
 ```bash
 claude plugin marketplace add zq940222/Claude-Code-Film-Studio
@@ -35,6 +35,22 @@ claude plugin install film-studio@film-studio
 
 安装后在**任意工作目录**运行 `/new-drama`：首次会自动初始化工作区（复制创作规范 CLAUDE.md 和工具脚本），然后建项开拍。命令带插件命名空间时写作 `/film-studio:new-drama`，无重名时直接 `/new-drama` 即可。
 
+### 安装到 Codex CLI
+
+同一份插件也是标准 Codex 插件（仓库根另带一份 Codex marketplace 清单），命令行两步安装：
+
+```bash
+codex plugin marketplace add zq940222/Claude-Code-Film-Studio
+codex plugin add film-studio@film-studio
+```
+
+13 个技能会以 `film-studio:<命令名>`（如 `film-studio:new-drama`）加载，用自然语言或技能名触发即可。
+差异只有两处，都已内置降级、不影响流程完整性：
+
+- **12 个 agent 不作为子代理运行**（Codex 不加载插件内 `agents/*.md`）：技能会自动改为"读取 `agents/<角色>.md` 当工作规范，在当前上下文直接执行"，
+  结果等同，代价是全流程串行、上下文占用更大——建议一次只推进一个阶段命令
+- **四道门禁改为对话式确认**（Codex 无结构化提问工具）：仍会停下来等你明确回复，语义不变
+
 ### 在其他 Agent 中安装（跨运行时兼容）
 
 本插件的 12 个技能内置了"运行时适配"降级逻辑，同一份插件可装进多种 Agent：
@@ -46,7 +62,8 @@ claude plugin install film-studio@film-studio
   ```
   技能原生加载；OpenClaw 不执行 subagent，技能会自动降级为"读取插件内 agents/*.md 当工作规范直接执行"，门禁确认改为对话内询问，效果等同
 - **Hermes Agent**（以 Claude Code / Claude Agent SDK 为执行内核）：与 Claude Code 完全同构，直接用上面的 `claude plugin` 命令安装即可
-- 其他支持 [Agent Skills 标准](https://docs.openclaw.ai/tools/skills)的运行时：把仓库整体复制进其技能目录（如 `~/.openclaw/skills/`）也可加载
+- 其他支持 [Agent Skills 标准](https://docs.openclaw.ai/tools/skills)的运行时：把 `plugins/film-studio/` 下的 `skills/` 与 `agents/` 复制进其技能目录（如 `~/.openclaw/skills/`、`~/.codex/`）也可加载——
+  两者保持同级摆放，技能里"插件根 = 本技能目录上两级"的相对路径才成立
 
 外部依赖（dreamina CLI、ffmpeg、agent-browser、pyJianYingDraft）与运行时无关，装好即可在任何 Agent 中使用。
 
@@ -195,11 +212,14 @@ projects/<片名>/
 ## 仓库结构
 
 ```
-.claude-plugin/            # 插件 manifest + 自托管 marketplace
-agents/                    # 12 个专业 agent 定义
-skills/                    # 12 个阶段 slash 命令 + seedance-prompt 提示词规范技能
-templates/                 # 工作区规范模板（/new-drama 建项时复制为工作区 CLAUDE.md）
-tools/                     # concat.py（转码拼接）+ clean_refimg.py（水印清理）+ jianying_assets.py（剪映素材）+ blender_blockout.py（白模预演），跨平台，建项时复制进工作区
+.claude-plugin/            # Claude Code 自托管 marketplace 清单
+.agents/plugins/           # Codex marketplace 清单（同一插件）
+plugins/film-studio/       # 插件本体
+  .claude-plugin/          # 插件 manifest（Codex 也复用这一份）
+  agents/                  # 12 个专业 agent 定义
+  skills/                  # 12 个阶段 slash 命令 + seedance-prompt 提示词规范技能
+  templates/               # 工作区规范模板（/new-drama 建项时复制为工作区 CLAUDE.md）
+  tools/                   # concat.py（转码拼接）+ clean_refimg.py（水印清理）+ jianying_assets.py（剪映素材）+ blender_blockout.py（白模预演），跨平台，建项时复制进工作区
 VERSION / CHANGELOG.md     # 版本号与更新日志
 requirements.txt           # Python 依赖（pyJianYingDraft）
 docs/adr/                  # 架构决策记录

@@ -2,7 +2,7 @@
 
 [中文](README.md) | **English**
 
-![version](https://img.shields.io/badge/version-2.14.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Windows%20%7C%20macOS-lightgrey)
+![version](https://img.shields.io/badge/version-3.0.0-blue) ![platform](https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20Windows%20%7C%20macOS-lightgrey)
 
 An AI studio for creating narrative video end-to-end inside Claude Code, in four formats: **short drama / short film / anime series / comedy sketch** (absurdist short-form comedy, with optional sponsor briefs woven in as plot-twist ad placements for monetization). From a one-line idea to platform publishing — script → storyboard → (Blender blockout previz to lock camera moves) → character/scene design → video generation → music → QC review → rough cut → JianYing (CapCut CN) fine cut (auto-generated draft) → publishing.
 
@@ -14,7 +14,7 @@ Twelve film-industry agents collaborate through staged slash commands (the scree
 
 ## Installation (Claude Code plugin)
 
-This repository is a standard Claude Code plugin with a self-hosted marketplace. Install from the command line in two steps:
+This repository is a self-hosted marketplace (the plugin itself lives in `plugins/film-studio/`). Install from the command line in two steps:
 
 ```bash
 claude plugin marketplace add zq940222/Claude-Code-Film-Studio
@@ -37,6 +37,21 @@ Restart your session after installing. The default scope is user-level (availabl
 
 After installing, run `/new-drama` in **any working directory**: the first run bootstraps the workspace (copies the studio conventions CLAUDE.md and helper scripts), then creates your project — choosing the format (short drama / short film / anime / comedy sketch). With the plugin namespace the command is `/film-studio:new-drama`; when there is no name clash, plain `/new-drama` works.
 
+### Installing into Codex CLI
+
+The same plugin ships a Codex marketplace manifest as well, so it installs in two commands there too:
+
+```bash
+codex plugin marketplace add zq940222/Claude-Code-Film-Studio
+codex plugin add film-studio@film-studio
+```
+
+All 13 skills load as `film-studio:<command>` (e.g. `film-studio:new-drama`). Two differences, both covered by built-in fallbacks:
+
+- **The 12 agents do not run as subagents** (Codex does not load a plugin's `agents/*.md`): skills fall back to reading `agents/<role>.md` as an in-context work spec.
+  Same output, but the pipeline runs serially in one context — advance one stage command at a time
+- **The four gates become chat confirmations** (Codex has no structured question tool): it still stops and waits for your explicit reply
+
 ### Installing into other agents (cross-runtime)
 
 All 12 skills carry a built-in "runtime adaptation" fallback, so the same plugin installs into multiple agents:
@@ -48,7 +63,7 @@ All 12 skills carry a built-in "runtime adaptation" fallback, so the same plugin
   ```
   Skills load natively; OpenClaw does not execute subagents, so skills automatically fall back to reading the bundled `agents/*.md` as in-context work specs, and gate confirmations become chat questions — same semantics
 - **Hermes Agent** (Claude Code / Claude Agent SDK as its execution core): identical to Claude Code — use the `claude plugin` commands above
-- Any runtime supporting the [Agent Skills standard](https://docs.openclaw.ai/tools/skills): copying the repo into its skills directory (e.g. `~/.openclaw/skills/`) also works
+- Any runtime supporting the [Agent Skills standard](https://docs.openclaw.ai/tools/skills): copying `skills/` and `agents/` from `plugins/film-studio/` into its skills directory (e.g. `~/.openclaw/skills/`, `~/.codex/`) also works — keep them siblings so the "plugin root = two levels up from the skill" paths resolve
 
 External dependencies (dreamina CLI, ffmpeg, agent-browser, pyJianYingDraft) are runtime-agnostic.
 
@@ -195,11 +210,14 @@ projects/<title>/
 ## Repository Layout
 
 ```
-.claude-plugin/            # Plugin manifest + self-hosted marketplace
-agents/                    # 12 professional agent definitions
-skills/                    # 12 staged slash commands + the seedance-prompt spec skill
-templates/                 # Workspace convention template (copied as workspace CLAUDE.md by /new-drama)
-tools/                     # concat.py (normalize + concat), clean_refimg.py (watermark cleanup), jianying_assets.py (JianYing assets), blender_blockout.py (blockout previz) — cross-platform, copied into workspaces
+.claude-plugin/            # Claude Code self-hosted marketplace manifest
+.agents/plugins/           # Codex marketplace manifest (same plugin)
+plugins/film-studio/       # The plugin itself
+  .claude-plugin/          # Plugin manifest (Codex reuses this one too)
+  agents/                  # 12 professional agent definitions
+  skills/                  # 12 staged slash commands + the seedance-prompt spec skill
+  templates/               # Workspace convention template (copied as workspace CLAUDE.md by /new-drama)
+  tools/                   # concat.py (normalize + concat), clean_refimg.py (watermark cleanup), jianying_assets.py (JianYing assets), blender_blockout.py (blockout previz) — cross-platform, copied into workspaces
 VERSION / CHANGELOG.md     # Version number and changelog
 requirements.txt           # Python dependency (pyJianYingDraft)
 docs/adr/                  # Architecture decision records

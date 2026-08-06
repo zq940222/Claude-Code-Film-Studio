@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "影视工作台插件源",
-    "version": "2.14.0"
+    "version": "3.0.0"
   },
   "renames": {
     "short-drama-studio": "film-studio"
@@ -13,7 +13,7 @@
   "plugins": [
     {
       "name": "film-studio",
-      "source": "./",
+      "source": "./plugins/film-studio",
       "description": "AI 影视创作全流程工作台（短剧/电影短片/动漫番剧/创意段子）：剧本 → 分镜 → Blender 白模预演 → 设定图 → 即梦视频生成 → Suno 配乐 → 剪映精剪 → 抖音发布（含商单广告植入变现）",
       "category": "productivity",
       "tags": ["film", "short-drama", "anime", "video", "aigc", "seedance", "previz", "blender", "jianying"]
