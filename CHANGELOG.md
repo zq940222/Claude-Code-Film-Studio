@@ -1,5 +1,72 @@
 # 更新日志
 
+## [3.1.0] - 2026-08-12
+
+### 新增（工程地基：把散文约定变成可机械判定的检查）
+
+此前工作台的"硬性安全规则"全靠散文写在 CLAUDE.md 与各 agent 规范里，靠 agent 自觉遵守；
+画幅写错、引用了带水印的 `_raw/` 图、没过门禁就开拍这三类事故都要等到烧完积分才发现。
+本版把它们变成**跑一条命令就能查出来**的检查：
+
+- **新增 `schemas/`**：`project.schema.json` + `shotlist.schema.json`，把 producer/cinematographer
+  规范里的散文约定固化成结构定义（含五种生成模式的模式专属约束、1080p 与 pro 模型的适用范围）
+- **新增 `tools/validate_project.py`**（纯 stdlib，遵守零第三方依赖约束）：手写 JSON Schema 子集校验
+  + 跨文件语义检查——画幅与 project.json 一致、引用文件存在、**引用 `_raw/` 未清水印图直接报错**、
+  白模与该镜同画幅同时长（ffprobe 实测）、`submitted` 必须有 submit_id、**门禁顺序**（未过门禁②
+  就进生成阶段报 ERROR）、账本对账。带 `--self-test` 与 `--schema-lint` 供 CI 用
+- **12 个阶段技能补「交付自检」块**：每个阶段给出可判定的通过判据，交付前逐条过
+  （灵感来自 OpenMontage 的 `success_criteria` / `review_focus`）
+- **新增 GitHub Actions CI**（`scripts/ci_check.py`）：三处版本号一致、所有 JSON 可解析、
+  技能与 agent 的 frontmatter 完整、每个技能都有运行时适配块与交付自检、两份 marketplace 同步、
+  文档里的"N 个 agent / N 个技能"声明不过时，以及**新增 tools/ 脚本必须挂进 `/new-drama` 复制清单**
+  （漏挂会让功能静默失效，是规则 2 最容易踩的坑）
+
+### 新增（创作知识层：三个跨形态通用的规范技能）
+
+- **`sound-design` 声音设计**：即梦原声/BGM/独白三层轨的分工铁律、响度与 ducking 目标、
+  音效时机与音桥（J-cut/L-cut）、即梦原声的三个已知坑、四种形态的声音法则
+- **`subtitle-craft` 字幕排版**：**竖屏字幕被平台 UI 吃掉**（本工作台字幕返工第一原因）的安全区数值、
+  字号与每行字数、按气口断句、驻留时长、对白/独白/旁白的样式区分、SRT 写法
+- **`edit-rhythm` 剪辑节奏**：四形态平均镜长基准、开场黄金时间、切点选择、节奏曲线、转场取舍、
+  `transition_in` 到实际处理的对应表。核心论点是**节奏在分镜阶段就定死了**（镜头长度提交即固定）
+- 三个技能已挂到 director / editor / finalcut / composer / reviewer；
+  为此给 director / editor / finalcut / reviewer 的 frontmatter 补了 `Skill` 工具
+
+### 新增（成本账本与断点续跑）
+
+- **`project.json` 新增 `ledger` 块**：积分记账从"一个 spent 数字"升级为**预估 → 预留 → 核销**三段式
+  （`estimate`/`reserve`/`actual`/`release` 四种只追加的流水）+ `unit_price` 实测均价与可信度；
+  校验器会核对 `credits.spent` 与账本 `actual` 合计是否相符
+- **新增 `history/gates.jsonl` 门禁留痕**（只追加）：中断、换机器、隔几天回来时，
+  凭它 + shotlist 实时状态就能回答"哪些门禁过了、哪批积分预留过、生成推进到哪一镜"，
+  不必重问用户、也不会重复付一次积分
+- `/studio-status` 改为报「已核销 / 预留未用 / 单价可信度」三列，并在开头跑一次校验
+
+### 新增（引擎降级链显式化）
+
+- 工作区 CLAUDE.md 的「生成引擎分工」新增**降级链表**（image / video / music / nle / publish
+  各自的主用 → 备用 → 兜底）与三条硬规则：只有主用不可用才降级、**每次降级必须告知用户代价**、
+  **视频生成没有备选，不可用就停下**（风格锁与角色一致性都建立在 Seedance 上，换引擎等于整片重做）
+- `project.json` 新增可选 `providers` 块固化用户偏好
+- 补齐了 operator 缺失的降级路径（半自动发布不可用 → 交付可复制的手动上传清单，
+  且**绝不把未发布记成已发布**），统一了 composer 的降级语义
+- 决策记录见 `docs/adr/0005`；新增的领域词汇（门禁留痕/积分账本/降级链/静默降级/交付自检）已进 `CONTEXT.md`
+
+### 致谢
+
+工程实践上参考了 [OpenMontage](https://github.com/calesthio/OpenMontage)（AGPLv3）的几个设计：
+阶段交付的成功标准、产物 schema 校验、成本三段式记账。**只借鉴概念，未复制其代码或文案**——
+film-studio 是 markdown 插件 bundle，与 OpenMontage 的 Python 工具注册表架构不同，
+其 pipeline manifest、tool_registry、selector 等机制经评估不适用，未引入。
+
+### 升级说明
+
+创作工作区与 `projects/` 数据格式**向后兼容**：`ledger`、`providers`、`history/` 都是可选的，
+老项目缺这些字段不会报错（校验器只在字段存在时检查）。建议升级后在工作区跑一次
+`python tools/validate_project.py` 看看既有项目有没有历史遗留问题。
+已有工作区要用上校验器，需要重跑一次 `/new-drama`（会补齐 `tools/validate_project.py` 与 `tools/schemas/`），
+或手动从插件目录复制这两项。
+
 ## [3.0.0] - 2026-08-06
 
 ### 变更（目录结构：插件下沉到 `plugins/film-studio/`，换来 Codex CLI 一键安装）

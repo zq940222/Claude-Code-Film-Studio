@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: 仓库结构与 schema 自检
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"   # 与工具脚本声明的最低版本一致（Python 3.8+）
+
+      - name: 仓库结构自检（版本号三处一致 / 技能与 agent frontmatter / 复制清单 / 双 marketplace）
+        run: python scripts/ci_check.py
+
+      - name: schema 只用了校验器支持的关键字
+        run: python plugins/film-studio/tools/validate_project.py --schema-lint
+
+      - name: 校验器自检（合法样例零 ERROR，各类违例均被抓出）
+        run: python plugins/film-studio/tools/validate_project.py --self-test
+
+  plugin-validate:
+    name: Claude 插件校验
+    runs-on: ubuntu-latest
+    continue-on-error: true   # claude CLI 不可用时不挡合并；结构检查由上面的 job 兜底
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 安装 Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: 校验 marketplace 清单
+        run: claude plugin validate .
+
+      - name: 校验插件本体（严格模式）
+        run: claude plugin validate plugins/film-studio --strict

@@ -108,6 +108,10 @@ ffprobe -v error -show_entries format=duration:stream=codec_type,codec_name,widt
 - **确定性错误不要自动重生成，改为报用户**：画幅不过且 mode 是 `frames2video`/`image2video`/**`multiframe2video`**（画幅均由输入图推断）——同一张图重生成必然再错，应报告"引用图比例与本集 ratio 不符"，请摄影/美术换图或改 ratio，别烧积分空转
   - **白模镜头同理**：入参校验就该拦下画幅/时长不符的白模（见校验步骤）；若已提交后出画幅问题，报告"白模与本集 ratio 不符"请回 `/previz` 重渲白模，不要用同一个白模重生成
 - 严禁"质检失败→自动重生成→再质检"的循环烧钱；重生成上限就是每镜 1 次
+- **即梦整体不可用时（CLI 缺失、登录失效、服务故障）：停下报告，绝不换别的视频引擎。**
+  按工作区 CLAUDE.md「降级链」，video 这一路**没有备选**——风格锁、角色一致性、原声音轨都建立在
+  Seedance 上，中途换引擎等于整片重做。已提交未收割的 submit_id 全部写进 shotlist，
+  告诉用户恢复后跑 `/studio-status` 收割即可，不会丢任务、也不会重复付费
 
 ## 汇报格式
 

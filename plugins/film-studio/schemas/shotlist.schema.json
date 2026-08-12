@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "film-studio/shotlist.schema.json",
+  "title": "film-studio shotlist.json",
+  "description": "摄影指导与视频生成师之间的交接件兼生成日志。由 tools/validate_project.py 校验；跨字段与跨文件的约束（blockout 归属、引用图存在、画幅与 project.json 一致）在校验器里另做，schema 表达不了。",
+  "type": "object",
+  "required": ["episode", "ratio", "shots"],
+  "properties": {
+    "episode": { "type": "integer", "minimum": 1 },
+    "ratio": { "enum": ["9:16", "16:9"] },
+    "shots": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/shot" }
+    }
+  },
+  "$defs": {
+    "shot": {
+      "type": "object",
+      "required": ["id", "mode", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^sh[0-9]{2}$" },
+        "mode": {
+          "enum": [
+            "multimodal2video",
+            "text2video",
+            "image2video",
+            "frames2video",
+            "multiframe2video"
+          ],
+          "description": "即梦网页端功能名对照：全能参考=multimodal2video、智能多帧=multiframe2video、首尾帧=frames2video"
+        },
+        "prompt": { "type": ["string", "null"] },
+        "images": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "顺序即提示词里 @image1..N 的引用顺序"
+        },
+        "videos": {
+          "type": "array",
+          "maxItems": 3,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "audios": {
+          "type": "array",
+          "maxItems": 3,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "blockout": {
+          "type": ["string", "null"],
+          "description": "指出 videos 里哪一个是白模参考视频；必须同时出现在 videos 中（校验器检查）"
+        },
+        "transition_in": { "type": "string" },
+        "duration": { "type": "number" },
+        "model": {
+          "type": ["string", "null"],
+          "enum": [
+            "seedance2.0_vip",
+            "seedance2.0fast_vip",
+            "seedance2.0",
+            "seedance2.0fast",
+            "3.5pro",
+            "3.0pro",
+            null
+          ]
+        },
+        "resolution": { "enum": ["720p", "1080p", null] },
+        "silent": { "type": "boolean" },
+        "first": { "type": ["string", "null"] },
+        "last": { "type": ["string", "null"] },
+        "first_from_prev": { "type": ["string", "null"], "pattern": "^sh[0-9]{2}$" },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["prompt", "duration"],
+            "additionalProperties": false,
+            "properties": {
+              "prompt": { "type": "string", "minLength": 1 },
+              "duration": { "type": "number", "minimum": 0.5, "maximum": 8 }
+            }
+          }
+        },
+        "keyframes_needed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["file", "desc"],
+            "additionalProperties": false,
+            "properties": {
+              "file": { "type": "string", "minLength": 1 },
+              "desc": { "type": "string", "minLength": 1 },
+              "ratio": { "enum": ["9:16", "16:9"] }
+            }
+          }
+        },
+        "status": {
+          "enum": ["pending", "submitted", "success", "failed", "rework"]
+        },
+        "submit_id": { "type": ["string", "null"] },
+        "file": { "type": ["string", "null"] },
+        "rework_reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "逐条以 [AI] 或 [人工] 开头标明来源（校验器检查）"
+        },
+        "prompt_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["round", "prompt"],
+            "additionalProperties": false,
+            "properties": {
+              "round": { "type": "integer", "minimum": 1 },
+              "prompt": { "type": "string" },
+              "rework_reasons": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "multiframe2video" } }
+          },
+          "then": {
+            "required": ["images", "silent"],
+            "properties": {
+              "images": { "minItems": 2, "maxItems": 20 },
+              "model": { "const": null },
+              "resolution": { "const": null },
+              "silent": { "const": true },
+              "duration": { "minimum": 0.5, "maximum": 160 }
+            },
+            "description": "智能多帧（multiframe2video）无模型/分辨率参数且静音，关键帧 2-20 张，音轨由精剪补"
+          },
+          "else": {
+            "properties": {
+              "duration": { "minimum": 4, "maximum": 15 }
+            },
+            "description": "即梦单次生成时长为 4-15 秒；更长的内容应拆镜或用时间码在一镜内写多节拍"
+          }
+        },
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "multimodal2video" } }
+          },
+          "then": {
+            "required": ["prompt", "images"],
+            "properties": {
+              "prompt": { "type": "string", "minLength": 1 },
+              "images": { "minItems": 1, "maxItems": 9 }
+            },
+            "description": "全能参考（multimodal2video）靠 @引用设定图保证角色一致性，参考图 1-9 张"
+          }
+        },
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "text2video" } }
+          },
+          "then": {
+            "required": ["prompt"],
+            "properties": {
+              "prompt": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "image2video" } }
+          },
+          "then": {
+            "required": ["prompt", "images"],
+            "properties": {
+              "prompt": { "type": "string", "minLength": 1 },
+              "images": { "minItems": 1, "maxItems": 1 }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "frames2video" } }
+          },
+          "then": {
+            "required": ["prompt"],
+            "properties": {
+              "prompt": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["resolution"],
+            "properties": { "resolution": { "const": "1080p" } }
+          },
+          "then": {
+            "properties": {
+              "mode": { "enum": ["image2video", "frames2video"] }
+            },
+            "description": "1080p 只在 image2video/frames2video 的 3.5pro/3.0pro 上有，且要放弃 @引用；seedance2.0 家族封顶 720p，反复出场的角色一律留在 720p 的 multimodal 路线保一致性"
+          }
+        },
+        {
+          "if": {
+            "required": ["model"],
+            "properties": { "model": { "enum": ["3.5pro", "3.0pro"] } }
+          },
+          "then": {
+            "properties": {
+              "mode": { "enum": ["image2video", "frames2video"] }
+            },
+            "description": "3.5pro/3.0pro 只在 image2video/frames2video 上可用；seedance2.0 家族请用 seedance2.0(fast)(_vip)"
+          }
+        }
+      ]
+    }
+  }
+}

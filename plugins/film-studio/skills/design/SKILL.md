@@ -36,3 +36,14 @@ description: 设定图阶段。调度美术指导 agent 生成角色三视图和
 
 - 设定图直接决定成片角色一致性，是回报率最高的确认环节，鼓励用户认真看
 - 重生成只重做被点名的图，通过的图不要动
+
+## 交付自检（门禁② 之前逐条过）
+
+- [ ] `style-bible.md` 的 STYLE LOCK 区是**实际的英文关键词块**，不是 TODO 占位
+- [ ] 分镜清单里每个角色有 front/side/face 三张，每个场景至少一张，无遗漏
+- [ ] **每张入库图都跑过 `tools/clean_refimg.py`，且用 Read 亲眼看过右下角无水印残留**——
+      带水印的参考图会被 Seedance 复刻进视频且无法补救，这是本阶段最贵的错误
+- [ ] 正式图在 `characters/`、`scenes/`，原始图在 `_raw/`，两者没有混放
+- [ ] 图的比例与 `project.json` 的 `format.ratio` 一致
+- [ ] 走了降级路径（即梦 text2image）的图**已明确告知用户消耗了积分**，且已记进 `ledger`
+- [ ] 门禁② 获用户明确确认；`status.design` 置 approved；`history/gates.jsonl` 追加了门禁② 的确认行

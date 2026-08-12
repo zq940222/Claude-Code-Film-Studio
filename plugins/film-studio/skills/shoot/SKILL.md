@@ -16,6 +16,9 @@ description: 视频生成阶段。摄影指导产出 shotlist.json 提示词清�
 ## 前置检查
 
 - status.design 必须是 approved；否则先走 /design
+- 工作区缺 `tools/validate_project.py` 时先从插件根（本技能目录上两级）的 `tools/` 复制过来；
+  同时确认工作区有 `tools/schemas/`，缺了就把插件根的 `schemas/` 整个复制为它。
+  **v3.1.0 之前建的工作区都没有这两项**，而本阶段提交生成前必须跑校验，所以在这里补齐
 - 回炉场景（review 后重拍）：shotlist.json 已存在且有 status=pending 的镜头，跳过第 1 步；若这些 pending 镜头有未备齐的 `keyframes_needed` 先走第 1.5 步，否则直接从第 2 步开始
 - **白模（可选）**：分镜里有 `【白模】` 标注但 `status.previz` 仍是 pending 时，提醒用户"这些镜头的运镜可先走
   `/previz` 用白模锁死（本地渲染、不耗积分），再来生成命中率更高"——用户可选择先做白模或直接生成，不阻塞
@@ -53,3 +56,25 @@ description: 视频生成阶段。摄影指导产出 shotlist.json 提示词清�
 
 - 门禁③未确认，任何人不得提交生成任务
 - "先生成 1 镜校准"路径：完成后用实际消耗重新报价剩余镜头，再次确认后继续
+
+## 交付自检（本阶段是唯一大额耗积分环节，判据最严）
+
+**提交生成前**：
+
+- [ ] `python tools/validate_project.py projects/<片名>` 零 ERROR
+      （它会查画幅一致、引用图存在、有没有引用 `_raw/` 带水印图、门禁顺序）
+- [ ] 每条提示词都**逐字前置**了 style-bible 的 STYLE LOCK
+- [ ] 每个 ≥8s 的 `multimodal2video`/`text2video` 镜头含 ≥2 个时间码节拍且节拍间有显式切镜动词；
+      标 `【一镜到底】` 的镜头有禁切句。**没有镜头在"切镜"上裸奔**
+- [ ] 有白模的镜头：走 `multimodal2video`、白模同时在 `videos` 和 `blockout` 字段、
+      提示词三句式齐全（复刻句 / 分工句 / **禁灰面句**）
+- [ ] 门禁③ 获用户明确确认；`ledger` 里已有对应的 `estimate` 与 `reserve` 两条流水；
+      `history/gates.jsonl` 追加了门禁③ 的确认行（含报价金额）
+
+**生成结束后**：
+
+- [ ] 每个 `status=success` 的镜头都过了 ffprobe 质检，`file` 指向真实存在的 `sh{NN}.mp4`
+- [ ] 每个 `submitted` 镜头都有 `submit_id`（中断后靠它收割，丢了等于白花钱）
+- [ ] `ledger` 补了 `actual` 流水，`credits.spent` 已同步，预留有剩的补了 `release`
+- [ ] `unit_price` 已用本次实测更新；有样本才标 `calibrated`
+- [ ] 重生成次数每镜 ≤ 1；缺音轨的镜头只记 warning，**没有因此重生成**

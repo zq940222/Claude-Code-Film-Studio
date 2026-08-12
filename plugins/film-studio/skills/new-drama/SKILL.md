@@ -18,7 +18,9 @@ description: 新建影视项目（短剧/电影短片/动漫番剧/创意段子�
 本技能目录的上两级是插件根目录（含 `templates/` 和 `tools/`）。检查当前工作目录：
 
 - 无 `CLAUDE.md` → 把插件根的 `templates/workspace-CLAUDE.md` 复制为工作区 `./CLAUDE.md`（工作台创作规范，之后会话自动加载）；已有 CLAUDE.md 则展示规范要点提示用户手动合并，**不要覆盖**
-- 工作区 `tools/` 缺 `concat.py`、`clean_refimg.py`、`jianying_assets.py` 或 `blender_blockout.py` → 从插件根的 `tools/` 复制过来（分别用于粗剪拼接、清水印、精剪查剪映素材、白模预演；跨平台 Python 脚本）
+- 工作区 `tools/` 缺 `concat.py`、`clean_refimg.py`、`jianying_assets.py`、`blender_blockout.py` 或 `validate_project.py` → 从插件根的 `tools/` 复制过来（分别用于粗剪拼接、清水印、精剪查剪映素材、白模预演、项目档案校验；跨平台 Python 脚本）
+- 工作区缺 `tools/schemas/` → 把插件根的 `schemas/` 整个复制为工作区 `tools/schemas/`（`project.schema.json` + `shotlist.schema.json`）。
+  **这一步不能省**：`validate_project.py` 按"脚本同目录的 `schemas/`"查找 schema，缺了它校验器会直接报错退出
 - 检查 `python -c "import pyJianYingDraft"`（macOS 用 `python3`），失败则提示 `python -m pip install pyJianYingDraft`（/finalcut 精剪要用，可先跳过不阻塞建项）
 - 顺带探测 `blender --version`（**可选依赖**，只有 `/previz` 白模预演用到）：没装就一句话告知
   "复杂运镜想用白模锁死可装 Blender 3.6+（免费，blender.org）；不装不影响其余全部流程"，**不追问、不阻塞建项**
@@ -73,3 +75,14 @@ description: 新建影视项目（短剧/电影短片/动漫番剧/创意段子�
 
 - 片名会成为目录名：过滤 Windows 非法字符（`\ / : * ? " < > |`）
 - 若同名项目已存在，停下询问是续作、覆盖还是换名
+
+## 交付自检（本阶段通过的判据）
+
+交付前逐条过，任一不达标就不算建项完成：
+
+- [ ] 工作区 `CLAUDE.md` 已就位；`tools/` 五个脚本齐（concat / clean_refimg / jianying_assets / blender_blockout / validate_project）；`tools/schemas/` 两份 schema 齐
+- [ ] `projects/<片名>/` 下六个标准目录都建了（01-script、02-storyboard、03-design 含 characters 与 scenes、03-previz、04-footage、05-final）
+- [ ] `project.json` 的 `format.medium`、`format.ratio`、`format.style.preset` 三项都有真实取值，不是占位
+- [ ] `03-design/style-bible.md` 里有逐字标题 `## 风格锁 STYLE LOCK（逐字复用，勿改）`（`custom` 允许正文留 TODO 占位）
+- [ ] `ledger` 块已初始化（`unit_price.confidence` 为 `unknown`、`entries` 为空数组）
+- [ ] `python tools/validate_project.py projects/<片名>` 零 ERROR

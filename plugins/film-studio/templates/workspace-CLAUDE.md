@@ -82,6 +82,30 @@ project.json 的 `sponsors.ep{NN}` 记品牌名与状态摘要（`briefed → sc
 
 ## 生成引擎分工（按任务类型）
 
+### 降级链（单一真源；每种能力主用不可用时按序往下走）
+
+| 能力 | 主用 | 备用 | 兜底 |
+|---|---|---|---|
+| 设定图 `image` | Gemini 网页端 Nano Banana（免积分） | `dreamina text2image`（**耗积分**，必须告知用户） | 停下，请用户自备参考图 |
+| 视频 `video` | 即梦 Seedance 2.0（`dreamina` CLI） | **无备选** | 停下告知用户 |
+| 配乐 `music` | Suno 网页端 | 用户自备 BGM（放进 `04-footage/ep{NN}/bgm/`） | 无 BGM 交付，精剪留空音轨 |
+| 精剪 `nle` | DaVinci Resolve Studio（检测到才用） | 剪映草稿（`pyJianYingDraft`，默认路径） | `/edit` 人工精剪交付包 |
+| 发布 `publish` | 抖音创作者中心网页端 | 手动上传（交付文案+封面+成片路径给用户） | — |
+
+**降级的三条硬规则**：
+
+1. **只有"主用不可用"才降级**——未登录、被风控、网页改版、CLI 报错、依赖缺失、连续 2 次失败。
+   慢、麻烦、要多点几下**都不是**降级理由
+2. **每次降级必须一句话告知用户**：降到了什么、代价是什么（耗积分／画质／一致性／要手动）、怎么恢复主用。
+   静默降级是本工作台最不能接受的行为——用户会以为拿到的是主用路径的质量
+3. **视频生成没有备选，不可用就停下**。风格锁、角色一致性、原声音轨全部建立在 Seedance 上，
+   中途换引擎等于整片重做——宁可停在这里等，也不要换
+
+想固化偏好（例如"设定图别用 Gemini，直接即梦"），让制片人写进 `project.json` 的 `providers` 块，
+格式 `{"image": {"primary": "dreamina-text2image", "fallback": []}}`，之后不再每集重问。
+
+### 各能力细则
+
 - **设定图**（角色三视图、场景概念图）→ Gemini 网页端 Nano Banana（`agent-browser` 浏览器自动化，省即梦积分）；不可用时降级 `dreamina text2image` 并告知用户。
   **Gemini 出图右下角有水印，入库前必须用 `tools/clean_refimg.py` 清理并肉眼复查**——带水印的参考图会被 Seedance 复刻进视频且无法补救；原始图放 `03-design/_raw/`，只有清理过的图才能进 `characters/`、`scenes/`
 - **视频片段** → 即梦 `dreamina` CLI（Seedance 2.0 家族）。**用满即梦能力：单次可 4-15 秒、可在一条提示词里用时间码切多节拍（导演切镜）、可多帧串连贯段落、可调分辨率——别把每个镜头都做成 4s 单动作短片**。
@@ -107,7 +131,17 @@ project.json 的 `sponsors.ep{NN}` 记品牌名与状态摘要（`briefed → sc
   否则默认 `pyJianYingDraft` 生成剪映草稿（不推销 Resolve），用户在剪映中微调导出
 - **平台发布** → 抖音创作者中心等网页端（`agent-browser` 浏览器自动化，半自动：发布前门禁④确认）
 - **文生文**（剧本/分镜/提示词/发布文案）→ Claude 本体
-- Seedance 提示词写作规范见插件自带 `seedance-prompt` 技能（@引用役割、时间码切镜专章、运镜/景别中英对照）
+## 内置规范技能（agent 开工前加载，你也可以直接问）
+
+| 技能 | 内容 | 谁在用 |
+|---|---|---|
+| `seedance-prompt` | @引用役割语法、时间码切镜专章、运镜/景别中英对照、白模三句式 | 摄影指导、白模师 |
+| `edit-rhythm` | 四形态平均镜长基准、开场黄金时间、切点选择、节奏曲线、转场取舍、`transition_in` 对应表 | 导演、剪辑师、精剪师、审片人 |
+| `sound-design` | 三层音轨分工、响度与 ducking 目标、音效时机与音桥、即梦原声的三个坑 | 配乐师、精剪师、审片人 |
+| `subtitle-craft` | **竖屏字幕安全区**（防被平台 UI 遮挡）、字号行数、按气口断句、驻留时长、SRT 写法 | 精剪师、审片人 |
+
+**节奏在分镜阶段就定死了**（镜头长度提交生成时即固定，剪辑救不回来）——所以 `edit-rhythm` 的主要读者是导演，
+不是剪辑师。节奏不对要回 `/storyboard` 改再重拍，不是在时间线上硬凑。
 
 ## 项目目录规范
 
@@ -120,13 +154,34 @@ projects/<片名>/
 ├── 03-previz/ep01/        # （可选）blockout.json 白模规格 + sh{NN}-blockout.mp4 白模参考视频 + previz-report.md
 ├── 04-footage/ep01/       # shotlist.json + sh01.mp4 ... + ep01.srt + bgm/（Suno BGM + 对位说明）
 ├── 05-final/              # <剧名>-ep01-粗剪.mp4 + delivery-ep01.md + finalcut-ep01.md（精剪说明）
-└── 06-publish/ep01/       # copy.md（发布文案）+ cover.png（封面）+ publish-log.md（发布记录）
+├── 06-publish/ep01/       # copy.md（发布文案）+ cover.png（封面）+ publish-log.md（发布记录）
+└── history/gates.jsonl    # 门禁确认留痕（只追加，一行一条 JSON）
 ```
 
 - 镜头命名：`ep{两位集号}` / `sh{两位镜号}`，如 `04-footage/ep01/sh03.mp4`
 - `project.json.status` 各阶段取值：`pending | in_progress | approved | done`；可选的 `status.previz` 另有 `skipped`（跳过白模，不影响流程）
 - `03-*` 是"视觉预备"层：设定图 `03-design/` 与白模预演 `03-previz/` 并列同层（白模是可选阶段产物）
 - `shotlist.json` 是摄影指导与视频生成师之间的交接件，也是生成日志（记录 submit_id、状态、产物路径），生成过程中必须实时更新
+- `project.json` 的 `ledger` 是**积分账本**：`entries` 只追加不改写，四种流水 `estimate`（门禁③报价）→
+  `reserve`（用户确认后预留）→ `actual`（实测核销，唯一影响 `credits.spent` 的一项）→ `release`（预留没用完的释放）；
+  `unit_price` 记实测均价与可信度，**`confidence` 是 `unknown` 时不许凭空报单价**
+- `history/gates.jsonl` 是**门禁留痕**（只追加）：每次门禁获确认追加一行
+  `{"ts":"...","gate":"3","stage":"footage","action":"approved","detail":"ep01 4 镜，预留 400 积分"}`。
+  会话中断、换机器、隔几天回来时，凭它 + shotlist 的实时状态就能回答"哪些门禁过了、哪批积分预留过、
+  生成推进到哪一镜"——**不必重问用户，也不会重复付一次积分**
+
+### 档案校验（改完 project.json / shotlist.json 随手跑一次）
+
+```bash
+python tools/validate_project.py                  # 全部项目
+python tools/validate_project.py projects/<片名>   # 单个项目
+```
+
+（Windows 用 `python`，macOS 用 `python3`。零第三方依赖。）
+它把下面「硬性安全规则」里几条最贵的变成机器可查：画幅与 project.json 不一致、
+引用了 `_raw/` 里未清水印的图、白模与该镜时长/画幅对不上、`submitted` 却没有 submit_id、
+**没过门禁就进了生成阶段**、账本与 `credits.spent` 对不上。
+**`/shoot` 提交生成前必须跑一次且零 ERROR。**
 
 ## 硬性安全规则
 
@@ -139,6 +194,11 @@ projects/<片名>/
 7. **未经门禁④确认，绝不点击任何平台的发布按钮**（含"确认定时发布"）；平台账号登录永远由用户本人完成。
 8. **白模必须与该镜同画幅、同时长**，否则不许提交生成（照错白模生成必错）——重渲白模免费，重生成烧积分；
    白模提示词的**禁灰面句不可省**（漏了会把 3D 灰模质感复刻进成片，属必回炉的双倍浪费）。
+9. **提交生成前必须跑 `python tools/validate_project.py projects/<片名>` 且零 ERROR**（免费、几秒钟）——
+   上面第 3、8 条和门禁顺序它都查；机器查一遍比烧完积分才发现便宜得多。
+10. **降级必须告知**：任何能力走了备用路径（设定图降级到即梦、配乐降级到自备/无 BGM、发布降级到手动上传），
+    都要一句话告诉用户降到了什么、代价是什么。**静默降级是本工作台最不能接受的行为**；
+    视频生成没有备选，即梦不可用就停下，绝不换引擎。
 
 ## 交付边界
 

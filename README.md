@@ -44,7 +44,7 @@ codex plugin marketplace add zq940222/Claude-Code-Film-Studio
 codex plugin add film-studio@film-studio
 ```
 
-13 个技能会以 `film-studio:<命令名>`（如 `film-studio:new-drama`）加载，用自然语言或技能名触发即可。
+16 个技能会以 `film-studio:<命令名>`（如 `film-studio:new-drama`）加载，用自然语言或技能名触发即可。
 差异只有两处，都已内置降级、不影响流程完整性：
 
 - **12 个 agent 不作为子代理运行**（Codex 不加载插件内 `agents/*.md`）：技能会自动改为"读取 `agents/<角色>.md` 当工作规范，在当前上下文直接执行"，
@@ -53,7 +53,7 @@ codex plugin add film-studio@film-studio
 
 ### 在其他 Agent 中安装（跨运行时兼容）
 
-本插件的 12 个技能内置了"运行时适配"降级逻辑，同一份插件可装进多种 Agent：
+本插件的 16 个技能内置了"运行时适配"降级逻辑，同一份插件可装进多种 Agent：
 
 - **OpenClaw**（支持 Claude 插件 bundle）：
   ```bash
@@ -123,6 +123,17 @@ codex plugin add film-studio@film-studio
 | `/publish` | 发布文案、封面图、半自动发布抖音等平台 | ④ 发布前确认 |
 | `/studio-status` | 全项目进度 + 积分余额总览 | - |
 
+### 内置规范技能（不是命令，由 agent 按需加载）
+
+除上面 12 个阶段命令外，插件还内置 4 份专业规范，agent 开工前自动加载，你也可以直接问：
+
+| 技能 | 内容 | 谁在用 |
+|---|---|---|
+| `seedance-prompt` | Seedance 2.0 提示词规范：@引用役割、时间码切镜专章、运镜/景别中英对照 | 摄影指导、白模师 |
+| `edit-rhythm` | 剪辑节奏：四形态平均镜长基准、开场黄金时间、切点选择、转场取舍 | 导演、剪辑师、精剪师、审片人 |
+| `sound-design` | 声音设计：三层音轨分工、响度与 ducking、音效时机、音桥 | 配乐师、精剪师、审片人 |
+| `subtitle-craft` | 字幕排版：竖屏安全区（防被平台 UI 遮挡）、字号断句驻留、SRT 写法 | 精剪师、审片人 |
+
 ## Agent 团队
 
 | Agent | 角色 | 职责 |
@@ -178,8 +189,18 @@ projects/<片名>/
 ├── 03-previz/ep01/        # （可选）blockout.json 白模规格 + sh01-blockout.mp4 白模参考视频 + previz-report.md
 ├── 04-footage/ep01/       # shotlist.json（任务清单兼生成日志）+ sh01.mp4 ... + ep01.srt + bgm/
 ├── 05-final/              # <剧名>-ep01-粗剪.mp4 + delivery-ep01.md + finalcut-ep01.md（精剪说明）
-└── 06-publish/ep01/       # copy.md（发布文案）+ cover.png（封面）+ publish-log.md（发布记录）
+├── 06-publish/ep01/       # copy.md（发布文案）+ cover.png（封面）+ publish-log.md（发布记录）
+└── history/gates.jsonl    # 门禁确认留痕（只追加）：中断/换机器后据此恢复，不重问、不重复付积分
 ```
+
+随时可以校验项目档案（跨平台，零依赖；Windows 用 `python`）：
+
+```bash
+python tools/validate_project.py
+```
+
+它会查出会烧积分的三类事故——**画幅与 project.json 不一致**、**引用了 `_raw/` 里未清水印的图**、
+**没过门禁就进了生成阶段**——以及 shotlist 的模式专属约束、白模与镜头是否同画幅同时长、积分账本是否对得上。
 
 ## 防烧钱机制
 
@@ -188,6 +209,10 @@ projects/<片名>/
 3. 生成失败自动重试仅 1 次，绝不无限重试
 4. 每个 submit_id 即时写入 shotlist.json，任务不丢失，中断后 `/studio-status` 可收割
 5. 白模预演走本地 Blender，**零积分**：运镜先在白模里调对再生成，把"运镜不对→回炉重生成"的积分损耗前移成免费的本地重渲
+6. **提交前机器校验**（`tools/validate_project.py`）：画幅不一致、引用带水印的 `_raw/` 图、白模与镜头时长对不上、
+   没过门禁就开拍——这几类"生成必错"的事故在花钱之前就被拦下
+7. **积分账本三段式**（预估 → 预留 → 核销）：每笔只追加不改写，配合 `history/gates.jsonl` 门禁留痕，
+   中断后能查清"这批镜到底扣没扣"，不会因为记不清而重复付一次
 
 ## 范围说明（交付边界）
 
@@ -217,9 +242,12 @@ projects/<片名>/
 plugins/film-studio/       # 插件本体
   .claude-plugin/          # 插件 manifest（Codex 也复用这一份）
   agents/                  # 12 个专业 agent 定义
-  skills/                  # 12 个阶段 slash 命令 + seedance-prompt 提示词规范技能
+  skills/                  # 12 个阶段 slash 命令 + 4 份规范技能（seedance-prompt / edit-rhythm / sound-design / subtitle-craft）
+  schemas/                 # project.json 与 shotlist.json 的结构定义（建项时复制为工作区 tools/schemas/）
   templates/               # 工作区规范模板（/new-drama 建项时复制为工作区 CLAUDE.md）
-  tools/                   # concat.py（转码拼接）+ clean_refimg.py（水印清理）+ jianying_assets.py（剪映素材）+ blender_blockout.py（白模预演），跨平台，建项时复制进工作区
+  tools/                   # concat.py（转码拼接）+ clean_refimg.py（水印清理）+ jianying_assets.py（剪映素材）+ blender_blockout.py（白模预演）+ validate_project.py（档案校验），跨平台，建项时复制进工作区
+scripts/ci_check.py        # 仓库结构自检（CI 用，不进插件 bundle）
+.github/workflows/ci.yml   # CI：版本号同步、技能与 agent 结构、复制清单、双 marketplace、schema 自检
 VERSION / CHANGELOG.md     # 版本号与更新日志
 requirements.txt           # Python 依赖（pyJianYingDraft）
 docs/adr/                  # 架构决策记录

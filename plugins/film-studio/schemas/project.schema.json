@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "film-studio/project.schema.json",
+  "title": "film-studio project.json",
+  "description": "项目档案的结构约定。由 tools/validate_project.py 校验（该校验器只实现 JSON Schema 的一个受支持子集，见脚本 SUPPORTED_KEYWORDS；additionalProperties:false 的违例按 WARN 报告而非 ERROR，以保持向前兼容）。",
+  "type": "object",
+  "required": ["title", "format", "status", "created"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "片名，同时是 projects/ 下的目录名"
+    },
+    "genre": {
+      "type": "string",
+      "description": "题材；sketch 形态下语义为人设方向"
+    },
+    "format": {
+      "type": "object",
+      "required": ["medium", "ratio", "episode_duration_sec", "episodes"],
+      "properties": {
+        "medium": {
+          "enum": ["short-drama", "short-film", "anime", "sketch"],
+          "description": "创作形态，驱动编剧/导演/美术/摄影/运营的法则切换"
+        },
+        "ratio": {
+          "enum": ["9:16", "16:9"]
+        },
+        "episode_duration_sec": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 1800
+        },
+        "episodes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "style": {
+          "type": "object",
+          "required": ["preset"],
+          "additionalProperties": false,
+          "properties": {
+            "preset": {
+              "type": "string",
+              "minLength": 1,
+              "description": "templates/style-presets.md 里的预设 id，或 custom"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "editing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "episode_overlap": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "seconds": { "type": "number", "minimum": 1, "maximum": 15 }
+          }
+        },
+        "intro_outro": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "sponsors": {
+      "type": "object",
+      "description": "可选商单摘要块；单一真源是 01-script/ep{NN}-sponsor.md",
+      "patternProperties": {
+        "^ep[0-9]{2}$": {
+          "type": "object",
+          "required": ["brand", "status"],
+          "additionalProperties": false,
+          "properties": {
+            "brand": { "type": "string", "minLength": 1 },
+            "status": { "enum": ["briefed", "script_ok", "published"] }
+          }
+        }
+      }
+    },
+    "providers": {
+      "type": "object",
+      "description": "可选的引擎降级链偏好；缺省时按工作区 CLAUDE.md「生成引擎分工」的默认链走",
+      "additionalProperties": false,
+      "properties": {
+        "image": { "$ref": "#/$defs/providerChain" },
+        "video": { "$ref": "#/$defs/providerChain" },
+        "music": { "$ref": "#/$defs/providerChain" },
+        "nle": { "$ref": "#/$defs/providerChain" },
+        "publish": { "$ref": "#/$defs/providerChain" }
+      }
+    },
+    "status": {
+      "type": "object",
+      "required": ["script", "storyboard", "design", "footage", "final"],
+      "additionalProperties": false,
+      "properties": {
+        "script": { "$ref": "#/$defs/stageStatus" },
+        "storyboard": { "$ref": "#/$defs/stageStatus" },
+        "previz": {
+          "enum": ["pending", "in_progress", "approved", "done", "skipped"],
+          "description": "可选阶段：skipped 表示跳过白模或本机没装 Blender，不影响流程"
+        },
+        "design": { "$ref": "#/$defs/stageStatus" },
+        "footage": { "$ref": "#/$defs/stageStatus" },
+        "final": { "$ref": "#/$defs/stageStatus" },
+        "publish": { "$ref": "#/$defs/stageStatus" }
+      }
+    },
+    "credits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "spent": { "type": "number", "minimum": 0 },
+        "notes": { "type": "string" }
+      }
+    },
+    "ledger": {
+      "type": "object",
+      "description": "积分账本：预估 → 预留 → 核销 三段式。entries 只追加不改写，是门禁③报价与 /studio-status 余额展示的依据",
+      "additionalProperties": false,
+      "properties": {
+        "unit_price": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "per_shot": {
+              "type": ["number", "null"],
+              "minimum": 0,
+              "description": "每镜实测均价；未校准时为 null，报价必须照实说明「单价未知」"
+            },
+            "per_video_ref_shot": {
+              "type": ["number", "null"],
+              "minimum": 0,
+              "description": "带视频参考位（白模）镜头的实测均价，单列不与普通镜头混估"
+            },
+            "confidence": {
+              "enum": ["unknown", "calibrated"],
+              "description": "unknown = 没有历史消耗记录，禁止凭空假设单价"
+            },
+            "samples": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ts", "kind", "credits"],
+            "additionalProperties": false,
+            "properties": {
+              "ts": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}" },
+              "ep": { "type": "string", "pattern": "^ep[0-9]{2}$" },
+              "kind": {
+                "enum": ["estimate", "reserve", "actual", "release"],
+                "description": "estimate=门禁③报价 / reserve=用户确认后预留 / actual=实测扣减核销 / release=未用完的预留释放"
+              },
+              "shots": { "type": "integer", "minimum": 0 },
+              "credits": { "type": "number", "minimum": 0 },
+              "balance_after": { "type": ["number", "null"], "minimum": 0 },
+              "note": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "created": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  },
+  "$defs": {
+    "stageStatus": {
+      "enum": ["pending", "in_progress", "approved", "done"]
+    },
+    "providerChain": {
+      "type": "object",
+      "required": ["primary"],
+      "additionalProperties": false,
+      "properties": {
+        "primary": { "type": "string", "minLength": 1 },
+        "fallback": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "按序降级；空数组表示无备选——主用不可用时停下告知用户，不得静默换路"
+        },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

@@ -46,7 +46,7 @@ codex plugin marketplace add zq940222/Claude-Code-Film-Studio
 codex plugin add film-studio@film-studio
 ```
 
-All 13 skills load as `film-studio:<command>` (e.g. `film-studio:new-drama`). Two differences, both covered by built-in fallbacks:
+All 16 skills load as `film-studio:<command>` (e.g. `film-studio:new-drama`). Two differences, both covered by built-in fallbacks:
 
 - **The 12 agents do not run as subagents** (Codex does not load a plugin's `agents/*.md`): skills fall back to reading `agents/<role>.md` as an in-context work spec.
   Same output, but the pipeline runs serially in one context — advance one stage command at a time
@@ -54,7 +54,7 @@ All 13 skills load as `film-studio:<command>` (e.g. `film-studio:new-drama`). Tw
 
 ### Installing into other agents (cross-runtime)
 
-All 12 skills carry a built-in "runtime adaptation" fallback, so the same plugin installs into multiple agents:
+All 16 skills carry a built-in "runtime adaptation" fallback, so the same plugin installs into multiple agents:
 
 - **OpenClaw** (supports Claude plugin bundles):
   ```bash
@@ -123,6 +123,17 @@ For a graphical view, there is also a standalone dashboard, [film-studio-dashboa
 | `/publish` | Copy, cover image, semi-automatic publishing to Douyin etc. | ④ Pre-publish confirmation |
 | `/studio-status` | All-project progress + credit overview | - |
 
+### Built-in spec skills (not commands — agents load them on demand)
+
+Alongside the 12 staged commands, the plugin ships 4 reference specs that agents load before starting work:
+
+| Skill | Contents | Used by |
+|---|---|---|
+| `seedance-prompt` | Seedance 2.0 prompting: @reference roles, timecode multi-shot cutting, camera/framing glossary | Cinematographer, previz artist |
+| `edit-rhythm` | Pacing: per-medium average shot length, opening golden window, cut points, transition policy | Director, editor, finalcut, reviewer |
+| `sound-design` | Three-layer audio split, loudness and ducking targets, SFX timing, audio bridges | Composer, finalcut, reviewer |
+| `subtitle-craft` | Subtitle safe areas (so platform UI does not cover them), sizing/segmentation/dwell, SRT rules | Finalcut, reviewer |
+
 ## The Agent Team
 
 | Agent | Role | Responsibilities |
@@ -175,8 +186,19 @@ projects/<title>/
 ├── 03-previz/ep01/        # (optional) blockout.json spec + sh01-blockout.mp4 reference clips + previz-report.md
 ├── 04-footage/ep01/       # shotlist.json (task list + generation log) + sh01.mp4 ... + ep01.srt + bgm/
 ├── 05-final/              # <title>-ep01-roughcut.mp4 + delivery-ep01.md + finalcut-ep01.md
-└── 06-publish/ep01/       # copy.md + cover.png + publish-log.md
+├── 06-publish/ep01/       # copy.md + cover.png + publish-log.md
+└── history/gates.jsonl    # Append-only gate-approval trail: resume after an interruption without re-asking or double-paying
 ```
+
+You can validate a project record at any time (cross-platform, zero dependencies; use `python` on Windows):
+
+```bash
+python tools/validate_project.py
+```
+
+It catches the three credit-burning mistakes — **aspect ratio disagreeing with project.json**,
+**referencing an un-dewatermarked image from `_raw/`**, and **entering generation before a gate was passed** —
+plus per-mode shotlist constraints, blockout/shot duration and ratio mismatches, and ledger reconciliation.
 
 ## Credit-Protection Mechanisms
 
@@ -185,6 +207,8 @@ projects/<title>/
 3. Failed generations retry once automatically — never in a loop
 4. Every submit_id is written to shotlist.json immediately; interrupted tasks can be collected later via `/studio-status`
 5. Blockout previz runs on local Blender at **zero credits**: dial the camera move in on the blockout first, turning "camera move is wrong → re-generate" credit burn into a free local re-render
+6. **Machine validation before submission** (`tools/validate_project.py`): ratio mismatches, references to un-dewatermarked `_raw/` images, blockout/shot duration mismatches, and skipped gates are all caught before any money is spent
+7. **Three-stage credit ledger** (estimate → reserve → reconcile): append-only entries plus the `history/gates.jsonl` approval trail mean that after an interruption you can tell whether a batch was actually charged — no paying twice because nobody remembers
 
 ## Scope (Delivery Boundary)
 
@@ -215,9 +239,12 @@ projects/<title>/
 plugins/film-studio/       # The plugin itself
   .claude-plugin/          # Plugin manifest (Codex reuses this one too)
   agents/                  # 12 professional agent definitions
-  skills/                  # 12 staged slash commands + the seedance-prompt spec skill
+  skills/                  # 12 staged slash commands + 4 spec skills (seedance-prompt / edit-rhythm / sound-design / subtitle-craft)
+  schemas/                 # Structure definitions for project.json and shotlist.json (copied to workspace tools/schemas/)
   templates/               # Workspace convention template (copied as workspace CLAUDE.md by /new-drama)
-  tools/                   # concat.py (normalize + concat), clean_refimg.py (watermark cleanup), jianying_assets.py (JianYing assets), blender_blockout.py (blockout previz) — cross-platform, copied into workspaces
+  tools/                   # concat.py (normalize + concat), clean_refimg.py (watermark cleanup), jianying_assets.py (JianYing assets), blender_blockout.py (blockout previz), validate_project.py (record validation) — cross-platform, copied into workspaces
+scripts/ci_check.py        # Repository structure self-check (CI only, not part of the plugin bundle)
+.github/workflows/ci.yml   # CI: version sync, skill/agent structure, copy list, dual marketplace, schema self-check
 VERSION / CHANGELOG.md     # Version number and changelog
 requirements.txt           # Python dependency (pyJianYingDraft)
 docs/adr/                  # Architecture decision records
