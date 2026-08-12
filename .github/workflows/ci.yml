@@ -12,9 +12,9 @@ jobs:
     name: 仓库结构与 schema 自检
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.9"   # 与工具脚本声明的最低版本一致（Python 3.8+）
 
@@ -32,11 +32,11 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true   # claude CLI 不可用时不挡合并；结构检查由上面的 job 兜底
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: 安装 Claude Code CLI
         run: npm install -g @anthropic-ai/claude-code

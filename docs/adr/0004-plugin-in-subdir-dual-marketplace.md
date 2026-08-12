@@ -5,7 +5,8 @@
 与 `.agents/plugins/marketplace.json`（Codex）。插件 manifest 仍是**唯一一份** `plugins/film-studio/.claude-plugin/plugin.json`
 ——Codex 的清单发现顺序是 `.codex-plugin/` → `.claude-plugin/` → `.cursor-plugin/`，会直接复用它。
 
-在 codex-cli 0.139.0 上用隔离 `CODEX_HOME` 实测得到的三条硬约束决定了这个形状：
+在 codex-cli 0.139.0 上用隔离 `CODEX_HOME` 实测得到的三条硬约束决定了这个形状
+（**2026-08-12 在 0.145.0 上复测，三条约束不变**，本决策继续有效）：
 
 1. Codex **不读** `.claude-plugin/marketplace.json`（换成 Codex schema 放在该路径也读不到），只读 `.agents/plugins/marketplace.json`，
    且 `plugins[].source` 必须是对象（`{"source":"local","path":"..."}`）而非字符串

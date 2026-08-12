@@ -59,6 +59,15 @@
 film-studio 是 markdown 插件 bundle，与 OpenMontage 的 Python 工具注册表架构不同，
 其 pipeline manifest、tool_registry、selector 等机制经评估不适用，未引入。
 
+### 实测
+
+- **Claude Code**：`claude plugin validate .` 与 `claude plugin validate plugins/film-studio --strict` 均通过
+- **Codex CLI 0.145.0**（隔离 `CODEX_HOME`）：从本仓库装通 3.1.0，**16 个技能全部以 `film-studio:<name>` 加载**
+  （含三个新增规范技能）；插件 bundle 完整包含 `schemas/`、5 个 `tools/` 脚本、12 个 agent 与 `templates/`，
+  校验器在 Codex 的 cache 布局下也能正确定位 schema。ADR-0004 记录的三条 Codex 约束在 0.145.0 上复测不变
+- **负向测试**：另建两个 fixture 工作区，故意写坏项目确认 6 类事故逐个被抓；
+  删掉 `tools/schemas/` 确认校验器给出可操作提示（退出码 2）而非 traceback
+
 ### 升级说明
 
 创作工作区与 `projects/` 数据格式**向后兼容**：`ledger`、`providers`、`history/` 都是可选的，
